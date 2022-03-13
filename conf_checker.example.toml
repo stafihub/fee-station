@@ -1,0 +1,20 @@
+atomDenom = "stake" 
+coinGeckoApi = "https://api.coingecko.com/api/v3/simple/price" 
+coinMarketApi = "https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest" 
+dotTypesPath = "/Users/tpkeeper/gowork/stafi/fee-station/network/polkadot.json" 
+ksmTypesPath = "/Users/tpkeeper/gowork/stafi/fee-station/network/kusama.json" 
+logFilePath = "" 
+taskTicker = 10 # seconds
+
+[endpoint]
+atom = "http://127.0.0.1:26657"
+dot = "ws://127.0.0.1:9944"
+eth = "https://ropsten.infura.io/v3/xxx"
+ksm = ""
+
+[db]
+host = "127.0.0.1" # mysql host ip
+name = "station" # the database this server used
+port = "3306" 
+pwd = "123456" # mysql password
+user = "root" # mysql username

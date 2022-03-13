@@ -1,0 +1,9 @@
+/build/
+/static/
+/conf.toml
+/log_data/
+/conf_payer.toml
+/conf_station.toml
+/conf_checker.toml
+/conf_syncer.toml
+/keys/

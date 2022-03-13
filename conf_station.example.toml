@@ -1,0 +1,19 @@
+listenAddr = ":8083" 
+logFilePath = "" 
+mode = "release" # debug or release
+swapMaxLimit = "150000000000000" #decimals 12
+swapMinLimit = "1000000000000" #decimals 12
+swapRate = "1600000" #decimals 6
+
+[poolAddress]
+atom = "cosmos1h6334dxdr3p0rccqhhpr057hevwrhk37qm6zsx"
+dot = "13frq3FZeKV8Zzzq68AEbjoDoiAr7iWYerxcG7NTBpwQ68gF"
+eth = "0x99c85bb64564d9ef9a99621301f22c9993cb89e3"
+ksm = "FFBM2LNQuEat7okuBvHMYL56gTSE5mb2k4sVUf47Y8Nem1d"
+
+[db]
+host = "127.0.0.1" # mysql host ip
+name = "station" # the database this server used
+port = "3306" 
+pwd = "123456" # mysql password
+user = "root" # mysql username
