@@ -20,8 +20,8 @@ type Server struct {
 	httpServer   *http.Server
 	taskTicker   int64
 	swapRate     string //decimals 6
-	swapMaxLimit string //decimals 12
-	swapMinLimit string //decimals 12
+	swapMaxLimit string //decimals 6
+	swapMinLimit string //decimals 6
 	atomDenom    string
 	dotTypesPath string
 	ksmTypesPath string

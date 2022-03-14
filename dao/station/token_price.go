@@ -6,7 +6,7 @@ import "fee-station/pkg/db"
 type FeeStationTokenPrice struct {
 	db.BaseModel
 	Symbol string `gorm:"type:varchar(10);not null;default:'symbol';column:symbol;uniqueIndex"`
-	Price  string `gorm:"type:varchar(30);not null;default:'0';column:price"` //decimals 18
+	Price  string `gorm:"type:varchar(30);not null;default:'0';column:price"` //decimals 6
 }
 
 func (f FeeStationTokenPrice) TableName() string {

@@ -20,59 +20,13 @@ var doc = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "tk",
-            "email": "tpkeeper.me@gmail.com"
+            "email": "tpkeeper@qq.com"
         },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/station/bundleAddress": {
-            "post": {
-                "description": "bundle stafi address",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "v1"
-                ],
-                "summary": "bundle address",
-                "parameters": [
-                    {
-                        "description": "bundle address",
-                        "name": "param",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/station_handlers.ReqBundleAddress"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/utils.Rsp"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/station_handlers.RspBundleAddress"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/v1/station/poolInfo": {
             "get": {
                 "description": "get pool info",
@@ -125,13 +79,6 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "block hash hex string",
-                        "name": "blockHash",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "tx hash hex string",
                         "name": "txHash",
                         "in": "query",
@@ -158,72 +105,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "post swap info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "v1"
-                ],
-                "summary": "post swap info",
-                "parameters": [
-                    {
-                        "description": "user swap info",
-                        "name": "param",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/station_handlers.ReqSwapInfo"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Rsp"
-                        }
-                    }
-                }
-            }
-        },
-        "/v2/station/swapInfo": {
-            "post": {
-                "description": "post swap info v2",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "v2"
-                ],
-                "summary": "post swap info v2",
-                "parameters": [
-                    {
-                        "description": "user swap info v2",
-                        "name": "param",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/station_handlers.ReqSwapInfoV2"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/utils.Rsp"
-                        }
-                    }
-                }
             }
         }
     },
@@ -232,7 +113,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "poolAddress": {
-                    "description": "base58 or hex",
+                    "description": "base58,bech32 or hex",
                     "type": "string"
                 },
                 "swapRate": {
@@ -241,118 +122,6 @@ var doc = `{
                 },
                 "symbol": {
                     "type": "string"
-                }
-            }
-        },
-        "station_handlers.ReqBundleAddress": {
-            "type": "object",
-            "properties": {
-                "poolAddress": {
-                    "type": "string"
-                },
-                "pubkey": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "signature": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "stafiAddress": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "symbol": {
-                    "type": "string"
-                }
-            }
-        },
-        "station_handlers.ReqSwapInfo": {
-            "type": "object",
-            "properties": {
-                "blockHash": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "inAmount": {
-                    "description": "decimal",
-                    "type": "string"
-                },
-                "minOutAmount": {
-                    "description": "decimal",
-                    "type": "string"
-                },
-                "poolAddress": {
-                    "type": "string"
-                },
-                "pubkey": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "signature": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "stafiAddress": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "symbol": {
-                    "type": "string"
-                },
-                "txHash": {
-                    "description": "hex",
-                    "type": "string"
-                }
-            }
-        },
-        "station_handlers.ReqSwapInfoV2": {
-            "type": "object",
-            "properties": {
-                "blockHash": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "bundleAddressId": {
-                    "type": "integer"
-                },
-                "inAmount": {
-                    "description": "decimal",
-                    "type": "string"
-                },
-                "minOutAmount": {
-                    "description": "decimal",
-                    "type": "string"
-                },
-                "poolAddress": {
-                    "type": "string"
-                },
-                "pubkey": {
-                    "description": "hex format eth:address other:pubkey",
-                    "type": "string"
-                },
-                "signature": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "stafiAddress": {
-                    "description": "hex",
-                    "type": "string"
-                },
-                "symbol": {
-                    "type": "string"
-                },
-                "txHash": {
-                    "description": "hex",
-                    "type": "string"
-                }
-            }
-        },
-        "station_handlers.RspBundleAddress": {
-            "type": "object",
-            "properties": {
-                "bundleAddressId": {
-                    "type": "integer"
                 }
             }
         },

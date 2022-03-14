@@ -27,7 +27,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
 	if err != nil {
 		return err
 	}
-	// check balance enough?
+	// ensure balance is enough
 	balanceRes, err := task.client.QueryBalance(task.client.GetFromAddress(), task.client.GetDenom(), 0)
 	if err != nil {
 		return err
@@ -37,7 +37,6 @@ func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
 	}
 	// the max amount we can transfer this time
 	maxTransferAmount := new(big.Int).Sub(balanceRes.GetBalance().Amount.BigInt(), minReserveValue)
-
 
 	// merge transfer msg
 	willTransferAmount := big.NewInt(0)
@@ -73,12 +72,13 @@ func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
 	}
 	logrus.Infof("will pay recievers: %v \n", msgs)
 
-
-	_, err = task.client.BroadcastBatchMsg(msgs)
+	txHash, err := task.client.BroadcastBatchMsg(msgs)
 	if err != nil {
 		return err
 	}
+	logrus.Infof("pay ok, tx hash: %s", txHash)
 
+	// update swap state in db
 	tx := db.NewTransaction()
 	for i, swapInfo := range swapInfoList {
 		if i > transferMaxIndex {
@@ -96,6 +96,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
 		return fmt.Errorf("tx.CommitTransaction err: %s", err)
 	}
 
+	// ensure state updated
 	for i, swapInfo := range swapInfoList {
 		if i > transferMaxIndex {
 			break
