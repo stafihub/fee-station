@@ -1,11 +1,13 @@
 package task
 
 import (
+	dao_station "fee-station/dao/station"
 	"fee-station/pkg/config"
 	"fee-station/pkg/db"
 	"fee-station/pkg/utils"
 	"time"
 
+	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 )
@@ -21,16 +23,16 @@ type Task struct {
 	taskTicker   int64
 	client       *hubClient.Client
 	payerAccount string
-	swapMaxLimit string
+	swapMaxLimit decimal.Decimal
 	stop         chan struct{}
 	db           *db.WrapDb
 }
 
-func NewTask(cfg *config.Config, dao *db.WrapDb) *Task {
+func NewTask(cfg *config.Config, dao *db.WrapDb, client *hubClient.Client) *Task {
 	s := &Task{
 		taskTicker:   cfg.TaskTicker,
 		payerAccount: cfg.PayerAccount,
-		swapMaxLimit: cfg.SwapMaxLimit,
+		client:       client,
 		stop:         make(chan struct{}),
 		db:           dao,
 	}
@@ -38,6 +40,15 @@ func NewTask(cfg *config.Config, dao *db.WrapDb) *Task {
 }
 
 func (task *Task) Start() error {
+	limitInfo, err := dao_station.GetLimitInfo(task.db)
+	if err != nil {
+		return err
+	}
+	maxLimitDeci, err := decimal.NewFromString(limitInfo.SwapMaxLimit)
+	if err != nil {
+		return err
+	}
+	task.swapMaxLimit = maxLimitDeci
 	utils.SafeGoWithRestart(task.Handler)
 	return nil
 }
@@ -61,7 +72,7 @@ out:
 			break out
 		case <-ticker.C:
 			logrus.Infof("task CheckPayInfo start -----------")
-			err := task.CheckPayInfo(task.db, task.swapMaxLimit)
+			err := task.CheckPayInfo(task.db)
 			if err != nil {
 				logrus.Errorf("task.CheckPayInfo err %s", err)
 				time.Sleep(BlockRetryInterval)

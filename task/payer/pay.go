@@ -12,9 +12,9 @@ import (
 	"math/big"
 )
 
-var minReserveValue = big.NewInt(1e12)
+var minReserveValue = big.NewInt(1e6)
 
-func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
+func (task Task) CheckPayInfo(db *db.WrapDb) error {
 	swapInfoList, err := dao_station.GetFeeStationSwapInfoListByState(db, utils.SwapStateAlreadySynced)
 	if err != nil {
 		return err
@@ -23,10 +23,6 @@ func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
 		return nil
 	}
 
-	swapLimitDeci, err := decimal.NewFromString(swapLimit)
-	if err != nil {
-		return err
-	}
 	// ensure balance is enough
 	balanceRes, err := task.client.QueryBalance(task.client.GetFromAddress(), task.client.GetDenom(), 0)
 	if err != nil {
@@ -51,7 +47,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
 		if err != nil {
 			return err
 		}
-		if outAmountDeci.Cmp(swapLimitDeci) > 0 {
+		if outAmountDeci.Cmp(task.swapMaxLimit) > 0 {
 			return fmt.Errorf("outAmount > swapLimit, out: %s", outAmountDeci.StringFixed(0))
 		}
 
@@ -68,7 +64,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb, swapLimit string) error {
 	}
 
 	if len(msgs) == 0 {
-		return fmt.Errorf("insufficient balance")
+		return fmt.Errorf("no msgs insufficient balance")
 	}
 	logrus.Infof("will pay recievers: %v \n", msgs)
 

@@ -1,9 +1,9 @@
-fisEndPoint = "ws://127.0.0.1:9944" 
-keystorePath = "/Users/tpkeeper/gowork/stafi/fee-station/keys" 
+gasPrice = "0.001ufis" 
+keystorePath = "/Users/tpkeeper/.stafihub" 
 logFilePath = "" 
-payerAccount = "34PAx5KPyne2r8vHhBMaesFo1JCG57cnC5qNwSYWmgNmtaWP" 
-swapMaxLimit = "150000000000000" #decimals 12
-taskTicker = 10 # seconds
+payerAccount = "relay1" 
+stafiHubEndPoint = "http://127.0.0.1:26657" 
+taskTicker = 15 # seconds
 
 [db]
 host = "127.0.0.1" # mysql host ip

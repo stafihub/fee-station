@@ -31,22 +31,9 @@ func GetPriceFromCoinGecko(url string) (map[string]float64, error) {
 	}
 	resPrice := make(map[string]float64)
 	for key, value := range coinGecko {
-		switch key {
-		case "cosmos":
-			resPrice[SymbolAtom] = value.Usd
-		case "polkadot":
-			resPrice[SymbolDot] = value.Usd
-		case "kusama":
-			resPrice[SymbolKsm] = value.Usd
-		case "stafi":
-			resPrice[SymbolFis] = value.Usd
-		case "ethereum":
-			resPrice[SymbolEth] = value.Usd
-		}
+		resPrice[key] = value.Usd
 	}
-	if len(resPrice) != 5 {
-		return nil, fmt.Errorf("get price from coingecko failed,len:%d ", len(resPrice))
-	}
+
 	return resPrice, nil
 }
 
@@ -73,9 +60,6 @@ func GetPriceFromCoinMarket(url string) (map[string]float64, error) {
 	}
 	resPrice := make(map[string]float64)
 	for key, v := range coinMarket.Data {
-		if !PriceSymbolValid(key) {
-			return nil, fmt.Errorf("price symbol invalid: %s", key)
-		}
 		resPrice[key] = v.Quote.USD.Price
 	}
 	return resPrice, nil

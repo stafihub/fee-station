@@ -5,11 +5,13 @@ swapMaxLimit = "150000000" #decimals 6
 swapMinLimit = "1000000" #decimals 6
 swapRate = "1600000" #decimals 6
 
-[poolAddress]
-atom = "cosmos1h6334dxdr3p0rccqhhpr057hevwrhk37qm6zsx"
-dot = "13frq3FZeKV8Zzzq68AEbjoDoiAr7iWYerxcG7NTBpwQ68gF"
-eth = "0x99c85bb64564d9ef9a99621301f22c9993cb89e3"
-ksm = "FFBM2LNQuEat7okuBvHMYL56gTSE5mb2k4sVUf47Y8Nem1d"
+[[tokenInfo]]
+AccountPrefix = "cosmos"
+CoinGeckoSymbol = "cosmos"
+CoinMarketSymbol = "ATOM"
+Endpoint = "http://127.0.0.1:16657"
+PoolAddress = "cosmos13mwxtgrljf9d5r72sc28496ua4lsga0jvmqz8x"
+StartHeight = 0
 
 [db]
 host = "127.0.0.1" # mysql host ip

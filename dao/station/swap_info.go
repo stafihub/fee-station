@@ -2,7 +2,7 @@ package dao_station
 
 import "fee-station/pkg/db"
 
-// swap info, syncer will sync transinfos from other chain and calcue out amount 
+// swap info, syncer will sync transinfos from other chain and calcue out amount
 type FeeStationSwapInfo struct {
 	db.BaseModel
 	StafihubAddress string `gorm:"type:varchar(80);not null;default:'';column:stafihub_address"` //bech32 string
@@ -11,16 +11,14 @@ type FeeStationSwapInfo struct {
 	Txhash          string `gorm:"type:varchar(80);not null;default:'';column:tx_hash;uniqueIndex:uni_idx_tx"`
 	PoolAddress     string `gorm:"type:varchar(80);not null;default:'';column:pool_address"`
 	InAmount        string `gorm:"type:varchar(30);not null;default:'0';column:in_amount"`
-	MinOutAmount    string `gorm:"type:varchar(30);not null;default:'0';column:min_out_amount"`
 	OutAmount       string `gorm:"type:varchar(30);not null;default:'0';column:out_amount"`
-	SwapRate        string `gorm:"type:varchar(30);not null;default:'0';column:swap_rate"` // decimal 6
 	InTokenPrice    string `gorm:"type:varchar(30);not null;default:'0';column:in_token_price"`
 	OutTokenPrice   string `gorm:"type:varchar(30);not null;default:'0';column:out_token_price"`
 	PayInfo         string `gorm:"type:varchar(80);not null;default:'';column:pay_info"` //pay tx hash
 }
 
 func (f FeeStationSwapInfo) TableName() string {
-	return "fee_staion_swap_infos"
+	return "fee_station_swap_infos"
 }
 
 func UpOrInFeeStationSwapInfo(db *db.WrapDb, c *FeeStationSwapInfo) error {

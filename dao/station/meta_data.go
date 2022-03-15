@@ -5,8 +5,13 @@ import "fee-station/pkg/db"
 // metadata of other chain
 type FeeStationMetaData struct {
 	db.BaseModel
-	Symbol            string `gorm:"type:varchar(10);not null;default:'symbol';column:symbol;uniqueIndex"`
+	Symbol            string `gorm:"type:varchar(10);not null;default:'';column:symbol;uniqueIndex"`         // uatom ...
 	SyncedBlockHeight uint64 `gorm:"type:bigint(20);unsigned;not null;default:0;column:synced_block_height"` //latest block height have dealed
+	Endpoint          string `gorm:"type:varchar(50);not null;default:'';column:endpoint"`
+	AccountPrefix     string `gorm:"type:varchar(10);not null;default:'';column:account_prefix"`
+	PoolAddress       string `gorm:"type:varchar(80);not null;default:'';column:pool_address"`
+	CoinmarketSymbol  string `gorm:"type:varchar(10);not null;default:'';column:coinmarket_symbol"`
+	CoinGeckoSymbol   string `gorm:"type:varchar(10);not null;default:'';column:coingecko_symbol"`
 }
 
 func (f FeeStationMetaData) TableName() string {
@@ -20,5 +25,10 @@ func UpOrInMetaData(db *db.WrapDb, c *FeeStationMetaData) error {
 func GetMetaData(db *db.WrapDb, symbol string) (c *FeeStationMetaData, err error) {
 	c = &FeeStationMetaData{}
 	err = db.Take(c, "symbol = ?", symbol).Error
+	return
+}
+
+func GetMetaDataList(db *db.WrapDb) (c []*FeeStationMetaData, err error) {
+	err = db.Find(&c).Error
 	return
 }

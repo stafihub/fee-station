@@ -32,4 +32,5 @@ const (
 	codeMinLimitErr           = "80013"
 	codeMaxLimitErr           = "80014"
 	codeSwapInfoNotExistErr   = "80015"
+	codeLimitInfoNotExistErr  = "80016"
 )

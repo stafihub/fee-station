@@ -12,7 +12,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/sirupsen/logrus"
+	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	"github.com/urfave/cli/v2"
 )
 
@@ -50,7 +53,18 @@ func _main(ctxCli *cli.Context) error {
 		logrus.Infof("shutting down the db ...")
 		sqlDb.Close()
 	}()
-	t := task.NewTask(cfg, db)
+
+	fmt.Printf("Will open stafihub wallet from <%s>. \nPlease ", cfg.KeystorePath)
+	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin)
+	if err != nil {
+		return err
+	}
+	client, err := hubClient.NewClient(key, cfg.PayerAccount, cfg.GasPrice, cfg.StafiHubEndpoint)
+	if err != nil {
+		return fmt.Errorf("hubClient.NewClient err: %s", err)
+	}
+
+	t := task.NewTask(cfg, db, client)
 	err = t.Start()
 	if err != nil {
 		logrus.Errorf("task start err: %s", err)
@@ -75,30 +89,7 @@ func main() {
 var app = cli.NewApp()
 
 var cliFlags = []cli.Flag{
-	ConfigFileFlag,
-	VerbosityFlag,
-	KeystorePathFlag,
 	ConfigPath,
-}
-
-var generateFlags = []cli.Flag{
-	PathFlag,
-}
-
-var accountCommand = cli.Command{
-	Name:        "accounts",
-	Usage:       "manage payer keystore",
-	Description: "The accounts command is used to manage the payer keystore.\n",
-	Subcommands: []*cli.Command{
-		{
-			Action: wrapHandler(handleGenerateSubCmd),
-			Name:   "gensub",
-			Usage:  "generate subsrate keystore",
-			Flags:  generateFlags,
-			Description: "The generate subcommand is used to generate the substrate keystore.\n" +
-				"\tkeystore path should be given.",
-		},
-	},
 }
 
 // init initializes CLI
@@ -106,13 +97,11 @@ func init() {
 	app.Action = _main
 	app.Copyright = "Copyright 2021 Stafi Protocol Authors"
 	app.Name = "payer"
-	app.Usage = "payer"
+	app.Usage = "payerd"
 	app.Authors = []*cli.Author{{Name: "Stafi Protocol 2021"}}
 	app.Version = "0.0.1"
 	app.EnableBashCompletion = true
-	app.Commands = []*cli.Command{
-		&accountCommand,
-	}
+	app.Commands = []*cli.Command{}
 
 	app.Flags = append(app.Flags, cliFlags...)
 }

@@ -13,42 +13,27 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	hubClient "github.com/stafihub/cosmos-relay-sdk/client"
+	"gorm.io/gorm"
 )
 
 type Server struct {
-	listenAddr   string
-	httpServer   *http.Server
-	taskTicker   int64
-	swapRate     string //decimals 6
-	swapMaxLimit string //decimals 6
-	swapMinLimit string //decimals 6
-	atomDenom    string
-	dotTypesPath string
-	ksmTypesPath string
-	poolAddress  config.PoolAddress
-	endPoint     config.Endpoint
-	db           *db.WrapDb
+	listenAddr string
+	httpServer *http.Server
+	taskTicker int64
+	cfg        *config.Config
+	db         *db.WrapDb
 }
 
 func NewServer(cfg *config.Config, dao *db.WrapDb) (*Server, error) {
 	s := &Server{
-		listenAddr:   cfg.ListenAddr,
-		taskTicker:   cfg.TaskTicker,
-		swapRate:     cfg.SwapRate,
-		swapMaxLimit: cfg.SwapMaxLimit,
-		swapMinLimit: cfg.SwapMinLimit,
-		atomDenom:    cfg.AtomDenom,
-		dotTypesPath: cfg.DotTypesPath,
-		ksmTypesPath: cfg.KsmTypesPath,
-		poolAddress:  cfg.PoolAddress,
-		endPoint:     cfg.Endpoint,
-		db:           dao,
+		listenAddr: cfg.ListenAddr,
+		taskTicker: cfg.TaskTicker,
+		cfg:        cfg,
+		db:         dao,
 	}
 
-	cache := map[string]string{
-		utils.SwapRateKey:     s.swapRate,
-		utils.SwapMaxLimitKey: s.swapMaxLimit,
-		utils.SwapMinLimitKey: s.swapMinLimit}
+	cache := map[string]string{}
 
 	handler := s.InitHandler(cache)
 
@@ -77,41 +62,47 @@ func (svr *Server) ApiServer() {
 	logrus.Infof("Gin server done on %s", svr.listenAddr)
 }
 
-//check and init dropFlowLatestDate LedgerLatestDate
 func (svr *Server) InitOrUpdatePoolAddress() error {
+	for _, tokenInfo := range svr.cfg.TokenInfo {
+		client, err := hubClient.NewClient(nil, "", "", tokenInfo.Endpoint)
+		if err != nil {
+			return err
+		}
+		client.SetAccountPrefix(tokenInfo.AccountPrefix)
+		res, err := client.QueryBondedDenom()
+		if err != nil {
+			return err
+		}
 
-	atom, _ := dao_station.GetFeeStationPoolAddressBySymbol(svr.db, utils.SymbolAtom)
-	atom.Symbol = utils.SymbolAtom
-	atom.PoolAddress = svr.poolAddress.Atom
-	err := dao_station.UpOrInFeeStationPoolAddress(svr.db, atom)
-	if err != nil {
-		return err
-	}
-	eth, _ := dao_station.GetFeeStationPoolAddressBySymbol(svr.db, utils.SymbolEth)
-	eth.Symbol = utils.SymbolEth
-	eth.PoolAddress = svr.poolAddress.Eth
-	err = dao_station.UpOrInFeeStationPoolAddress(svr.db, eth)
-	if err != nil {
-		return err
-	}
-
-	dot, _ := dao_station.GetFeeStationPoolAddressBySymbol(svr.db, utils.SymbolDot)
-	dot.Symbol = utils.SymbolDot
-	dot.PoolAddress = svr.poolAddress.Dot
-	err = dao_station.UpOrInFeeStationPoolAddress(svr.db, dot)
-	if err != nil {
-		return err
-	}
-
-	ksm, _ := dao_station.GetFeeStationPoolAddressBySymbol(svr.db, utils.SymbolKsm)
-	ksm.Symbol = utils.SymbolKsm
-	ksm.PoolAddress = svr.poolAddress.Ksm
-	err = dao_station.UpOrInFeeStationPoolAddress(svr.db, ksm)
-	if err != nil {
-		return err
+		metaData, err := dao_station.GetMetaData(svr.db, res.Params.BondDenom)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+		metaData.Symbol = res.Params.BondDenom
+		metaData.AccountPrefix = tokenInfo.AccountPrefix
+		metaData.CoinmarketSymbol = tokenInfo.CoinMarketSymbol
+		metaData.CoinGeckoSymbol = tokenInfo.CoinGeckoSymbol
+		metaData.PoolAddress = tokenInfo.PoolAddress
+		metaData.Endpoint = tokenInfo.Endpoint
+		if tokenInfo.StartHeight > metaData.SyncedBlockHeight {
+			metaData.SyncedBlockHeight = tokenInfo.StartHeight - 1
+		}
+		err = dao_station.UpOrInMetaData(svr.db, metaData)
+		if err != nil {
+			return err
+		}
 	}
 
-	return nil
+	limitInfo, err := dao_station.GetLimitInfo(svr.db)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	}
+	limitInfo.SwapMaxLimit = svr.cfg.SwapMaxLimit
+	limitInfo.SwapMinLimit = svr.cfg.SwapMinLimit
+	limitInfo.SwapRate = svr.cfg.SwapRate
+
+	return dao_station.UpOrInLimitInfo(svr.db, limitInfo)
+
 }
 
 func (svr *Server) Start() error {

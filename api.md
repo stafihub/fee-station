@@ -50,8 +50,8 @@
 | message | N/A          | N/A         | string | Yes         | null        | status info                                      |
 | data    | N/A          | N/A         | object | Yes         | null        | data                                             |
 |         | poolInfoList | N/A         | list   | Yes         | null        | list                                             |
-|         |              | symbol      | string | Yes         | null        | now support ATOM                                 |
-|         |              | poolAddress | string | Yes         | null        | pool address                                     |
+|         |              | symbol      | string | Yes         | null        | native token like `uatom`                        |
+|         |              | poolAddress | string | Yes         | null        | pool address, bech32 string                      |
 |         |              | swapRate    | string | Yes         | null        | fis amount = token amount * swapRate, decimals 6 |
 |         | swapMaxLimit | N/A         | string | Yes         | null        | the max fis amount limit,  decimals 6            |
 |         | swapMinLimit | N/A         | string | Yes         | null        | the min fis amount limit, decimals 6             |

@@ -137,32 +137,7 @@ func GetDropRate(startDayStr, nowDayStr string) (string, error) {
 }
 
 const (
-	SymbolDot  = "DOT"
-	SymbolKsm  = "KSM"
-	SymbolAtom = "ATOM"
-	SymbolEth  = "ETH"
-	SymbolFis  = "FIS"
+	SymbolFis           = "ufis"
+	CoinmarketSymbolFis = "FIS"
+	CoinGeckoSymbolFis  = "stafi"
 )
-
-var symbolMap = map[string]bool{
-	SymbolDot:  true,
-	SymbolKsm:  true,
-	SymbolAtom: true,
-	SymbolEth:  true,
-}
-
-var priceSymbolMap = map[string]bool{
-	SymbolDot:  true,
-	SymbolKsm:  true,
-	SymbolAtom: true,
-	SymbolEth:  true,
-	SymbolFis:  true,
-}
-
-func SymbolValid(symbol string) bool {
-	return symbolMap[symbol]
-}
-
-func PriceSymbolValid(symbol string) bool {
-	return priceSymbolMap[symbol]
-}

@@ -28,7 +28,7 @@ func (h *Handler) HandleGetSwapInfo(c *gin.Context) {
 	symbol := c.Query("symbol")
 	txHash := c.Query("txHash")
 	//check param
-	if !utils.SymbolValid(symbol) {
+	if len(symbol) == 0 {
 		utils.Err(c, codeSymbolErr, "symbol unsupport")
 		return
 	}

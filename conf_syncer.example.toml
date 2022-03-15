@@ -1,17 +1,8 @@
-atomDenom = "uatom" 
-etherScanApiKey = "VC35I1VEW49ZTRNPDT11QQ8WWCS324FZGS" 
 logFilePath = "" 
-recoverInterval = 20 # seconds
-#startTimestamp = 1635240966 # seconds
-subScanApiKey = "" 
-swapMaxLimit = "100000000000000" #decimals 12
-taskTicker = 10 # seconds
+taskTicker = 15 # seconds
 
-[syncTxEndpoint]
-atom = "https://cosmos-rpc1.stafi.io:443"
-dot = "https://polkadot.api.subscan.io"
-eth = "https://api.etherscan.io"
-ksm = "https://kusama.api.subscan.io"
+coinGeckoApi = "https://api.coingecko.com/api/v3/simple/price"
+coinMarketApi = "https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
 
 [db]
 host = "127.0.0.1" # mysql host ip

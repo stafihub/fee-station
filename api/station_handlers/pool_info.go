@@ -28,27 +28,30 @@ type RspPoolInfo struct {
 // @Success 200 {object} utils.Rsp{data=RspPoolInfo}
 // @Router /v1/station/poolInfo [get]
 func (h *Handler) HandleGetPoolInfo(c *gin.Context) {
-	list, err := dao_station.GetFeeStationPoolAddressList(h.db)
+	list, err := dao_station.GetMetaDataList(h.db)
 	if err != nil {
 		utils.Err(c, codeInternalErr, err.Error())
 		return
 	}
-	swapRateStr := h.cache[utils.SwapRateKey]
-	swapMaxLimitStr := h.cache[utils.SwapMaxLimitKey]
-	swapMinLimitStr := h.cache[utils.SwapMinLimitKey]
-	swapRateDeci, err := decimal.NewFromString(swapRateStr)
+	limitInfo, err := dao_station.GetLimitInfo(h.db)
 	if err != nil {
-		logrus.Errorf("decimal.NewFromString,str:%s err %s", swapRateStr, err)
+		utils.Err(c, codeLimitInfoNotExistErr, err.Error())
+		return
+	}
+
+	swapRateDeci, err := decimal.NewFromString(limitInfo.SwapRate)
+	if err != nil {
+		logrus.Errorf("decimal.NewFromString,str:%s err %s", limitInfo.SwapRate, err)
 		swapRateDeci = utils.DefaultSwapRateDeci
 	}
-	swapMaxLimitDeci, err := decimal.NewFromString(swapMaxLimitStr)
+	swapMaxLimitDeci, err := decimal.NewFromString(limitInfo.SwapMaxLimit)
 	if err != nil {
-		logrus.Errorf("decimal.NewFromString,swapMaxLimitStr:%s err %s", swapMaxLimitStr, err)
+		logrus.Errorf("decimal.NewFromString,swapMaxLimitStr:%s err %s", limitInfo.SwapMaxLimit, err)
 		swapMaxLimitDeci = utils.DefaultSwapMaxLimitDeci
 	}
-	swapMinLimitDeci, err := decimal.NewFromString(swapMinLimitStr)
+	swapMinLimitDeci, err := decimal.NewFromString(limitInfo.SwapMinLimit)
 	if err != nil {
-		logrus.Errorf("decimal.NewFromString,swapMinLimitStr:%s err %s", swapMinLimitStr, err)
+		logrus.Errorf("decimal.NewFromString,swapMinLimitStr:%s err %s", limitInfo.SwapMinLimit, err)
 		swapMinLimitDeci = utils.DefaultSwapMinLimitDeci
 	}
 

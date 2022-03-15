@@ -14,53 +14,34 @@ import (
 type Config struct {
 	TaskTicker  int64 //seconds task interval
 	LogFilePath string
-	//checker
-	DotTypesPath  string
-	KsmTypesPath  string
+	// payer
+	KeystorePath     string
+	PayerAccount     string
+	StafiHubEndpoint string
+	GasPrice         string
+
+	// station
+	ListenAddr   string
+	SwapRate     string //decimals 6
+	SwapMaxLimit string //decimals 6
+	SwapMinLimit string //decimals 6
+	Mode         string //release debug test
+	TokenInfo    []TokenInfo
+
+	// syncer
 	CoinMarketApi string
 	CoinGeckoApi  string
-	Endpoint      Endpoint
-	// payer
-	KeystorePath string
-	PayerAccount string
-	FisEndpoint  string
-	//station
-	ListenAddr   string
-	AtomDenom    string
-	SwapRate     string //decimals 6
-	SwapMaxLimit string //decimals 12
-	SwapMinLimit string //decimals 12
-	Mode         string //release debug test
-	PoolAddress  PoolAddress
-	//syncer
-	EtherScanApiKey string
-	SubScanApiKey   string
-	RecoverInterval int64
-	StartTimestamp  int64
-	SyncTxEndpoint  SyncTxEndpoint
 	//common
 	Db Db
 }
 
-type PoolAddress struct {
-	Eth  string
-	Atom string
-	Dot  string
-	Ksm  string
-}
-
-type Endpoint struct {
-	Eth  string
-	Atom string
-	Dot  string
-	Ksm  string
-}
-
-type SyncTxEndpoint struct {
-	Eth  string
-	Atom string
-	Dot  string
-	Ksm  string
+type TokenInfo struct {
+	Endpoint         string
+	AccountPrefix    string
+	PoolAddress      string
+	CoinMarketSymbol string
+	CoinGeckoSymbol  string
+	StartHeight      uint64
 }
 
 type Db struct {

@@ -5,10 +5,10 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v0.4.1
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20210713215043-76165a18546d
-	github.com/ChainSafe/log15 v1.0.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/btcsuite/btcd v0.22.0-beta
 	github.com/cosmos/cosmos-sdk v0.45.1
+	github.com/cosmos/ibc-go v1.2.5
 	github.com/ethereum/go-ethereum v1.10.15
 	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
 	github.com/gin-gonic/gin v1.6.3
@@ -20,8 +20,9 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.8.1
+	github.com/spf13/cobra v1.2.1
+	github.com/stafihub/cosmos-relay-sdk v0.0.0-20220314073103-34c0e5f10a8f
 	github.com/stafihub/stafi-hub-relay-sdk v0.0.0-20220311093735-c6b06c9e7fe9
-	github.com/stafiprotocol/chainbridge v1.0.0
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	github.com/tebeka/strftime v0.1.5 // indirect
