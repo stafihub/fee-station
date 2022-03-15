@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
+	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 )
 
@@ -49,6 +50,7 @@ func (task *Task) Start() error {
 	}
 	task.swapMaxLimit = maxLimitDeci
 	utils.SafeGoWithRestart(task.CheckPayInfoHandler)
+	logrus.Info("payer start")
 	return nil
 }
 

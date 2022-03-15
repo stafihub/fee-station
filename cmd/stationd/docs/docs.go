@@ -184,8 +184,8 @@ var SwaggerInfo = swaggerInfo{
 	Host:        "localhost:8083",
 	BasePath:    "/feeStation/api",
 	Schemes:     []string{},
-	Title:       "drop API",
-	Description: "drop api document.",
+	Title:       "feeStation API",
+	Description: "feeStation api document.",
 }
 
 type s struct{}

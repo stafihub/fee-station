@@ -43,8 +43,8 @@ info:
   contact:
     email: tpkeeper@qq.com
     name: tk
-  description: drop api document.
-  title: drop API
+  description: feeStation api document.
+  title: feeStation API
   version: "1.0"
 paths:
   /v1/station/poolInfo:

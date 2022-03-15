@@ -26,7 +26,6 @@ require (
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	github.com/tebeka/strftime v0.1.5 // indirect
-	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
 	gorm.io/driver/mysql v1.0.3
 	gorm.io/gorm v1.21.12

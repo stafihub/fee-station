@@ -11,15 +11,16 @@ import (
 	"fee-station/task/payer"
 	"fmt"
 	"os"
+	"runtime"
+	"runtime/debug"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
-	"github.com/urfave/cli/v2"
 )
 
-func _main(ctxCli *cli.Context) error {
+func _main() error {
 	cfg, err := config.Load("conf_payer.toml")
 	if err != nil {
 		fmt.Printf("loadConfig err: %s", err)
@@ -80,28 +81,10 @@ func _main(ctxCli *cli.Context) error {
 }
 
 func main() {
-	if err := app.Run(os.Args); err != nil {
-		logrus.Error(err.Error())
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	debug.SetGCPercent(40)
+	err := _main()
+	if err != nil {
 		os.Exit(1)
 	}
-}
-
-var app = cli.NewApp()
-
-var cliFlags = []cli.Flag{
-	ConfigPath,
-}
-
-// init initializes CLI
-func init() {
-	app.Action = _main
-	app.Copyright = "Copyright 2021 Stafi Protocol Authors"
-	app.Name = "payer"
-	app.Usage = "payerd"
-	app.Authors = []*cli.Author{{Name: "Stafi Protocol 2021"}}
-	app.Version = "0.0.1"
-	app.EnableBashCompletion = true
-	app.Commands = []*cli.Command{}
-
-	app.Flags = append(app.Flags, cliFlags...)
 }

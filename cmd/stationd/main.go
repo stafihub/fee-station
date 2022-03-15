@@ -80,9 +80,9 @@ func _main() error {
 	return nil
 }
 
-// @title drop API
+// @title feeStation API
 // @version 1.0
-// @description drop api document.
+// @description feeStation api document.
 
 // @contact.name tk
 // @contact.email tpkeeper@qq.com
