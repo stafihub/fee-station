@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
-	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 )
 
@@ -49,38 +48,10 @@ func (task *Task) Start() error {
 		return err
 	}
 	task.swapMaxLimit = maxLimitDeci
-	utils.SafeGoWithRestart(task.Handler)
+	utils.SafeGoWithRestart(task.CheckPayInfoHandler)
 	return nil
 }
 
 func (task *Task) Stop() {
 	close(task.stop)
-}
-
-func (task *Task) Handler() {
-	ticker := time.NewTicker(time.Duration(task.taskTicker) * time.Second)
-	defer ticker.Stop()
-	retry := 0
-out:
-	for {
-		if retry > BlockRetryLimit {
-			utils.ShutdownRequestChannel <- struct{}{}
-		}
-		select {
-		case <-task.stop:
-			logrus.Info("task has stopped")
-			break out
-		case <-ticker.C:
-			logrus.Infof("task CheckPayInfo start -----------")
-			err := task.CheckPayInfo(task.db)
-			if err != nil {
-				logrus.Errorf("task.CheckPayInfo err %s", err)
-				time.Sleep(BlockRetryInterval)
-				retry++
-				continue out
-			}
-			logrus.Infof("task CheckPayInfo end -----------")
-			retry = 0
-		}
-	}
 }

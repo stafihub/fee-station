@@ -16,15 +16,16 @@ func (task *Task) PriceUpdateHandler() {
 	ticker := time.NewTicker(time.Duration(task.taskTicker) * time.Second)
 	defer ticker.Stop()
 	retry := 0
-out:
 	for {
 		if retry > BlockRetryLimit {
 			utils.ShutdownRequestChannel <- struct{}{}
+			logrus.Errorf("updatePrice reach retry limit")
+			return
 		}
 		select {
 		case <-task.stop:
-			logrus.Info("task UpdatePrice has stopped")
-			break out
+			logrus.Info("task UpdatePriceHandler receive stop chan, will stop")
+			return
 		case <-ticker.C:
 
 			logrus.Debug("task UpdatePrice start -----------")
@@ -33,7 +34,7 @@ out:
 				logrus.Errorf("task.UpdatePrice err %s", err)
 				time.Sleep(BlockRetryInterval)
 				retry++
-				continue out
+				continue
 			}
 			logrus.Debug("task UpdatePrice end -----------")
 			retry = 0
@@ -42,7 +43,6 @@ out:
 }
 
 func (t *Task) UpdatePrice(db *db.WrapDb) error {
-
 	metaDatas, err := dao_station.GetMetaDataList(t.db)
 	if err != nil {
 		return err

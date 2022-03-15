@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (t *Task) pollBlocks(client *hubClient.Client) {
+func (t *Task) pollBlocksHandler(client *hubClient.Client) {
 	metaData, err := dao_station.GetMetaData(t.db, client.GetDenom())
 	if err != nil {
 		utils.ShutdownRequestChannel <- struct{}{}
@@ -22,14 +22,14 @@ func (t *Task) pollBlocks(client *hubClient.Client) {
 	}
 
 	var willDealBlock = metaData.SyncedBlockHeight + 1
-	var retry = BlockRetryLimit
+	var retry = 0
 	for {
 		select {
 		case <-t.stop:
-			logrus.Info("pollBlocks receive stop chan, will stop")
+			logrus.Info("task pollBlocksHandler receive stop chan, will stop")
 			return
 		default:
-			if retry <= 0 {
+			if retry > BlockRetryLimit {
 				utils.ShutdownRequestChannel <- struct{}{}
 				logrus.Errorf("pollBlocks reach retry limit ")
 				return
@@ -38,7 +38,7 @@ func (t *Task) pollBlocks(client *hubClient.Client) {
 			latestBlk, err := client.GetCurrentBlockHeight()
 			if err != nil {
 				logrus.Error("Failed to fetch latest blockNumber", "err", err)
-				retry--
+				retry++
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
@@ -50,7 +50,7 @@ func (t *Task) pollBlocks(client *hubClient.Client) {
 			err = t.processBlockEvents(client, int64(willDealBlock), metaData)
 			if err != nil {
 				logrus.Error("Failed to process events in block", "block", willDealBlock, "err", err)
-				retry--
+				retry++
 				time.Sleep(BlockRetryInterval)
 				continue
 			}
@@ -67,7 +67,7 @@ func (t *Task) pollBlocks(client *hubClient.Client) {
 			}
 			willDealBlock++
 
-			retry = BlockRetryLimit
+			retry = 0
 		}
 	}
 }

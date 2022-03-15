@@ -41,7 +41,6 @@ func NewTask(cfg *config.Config, dao *db.WrapDb) *Task {
 }
 
 func (task *Task) Start() error {
-
 	limitInfo, err := dao_station.GetLimitInfo(task.db)
 	if err != nil {
 		return err
@@ -75,7 +74,7 @@ func (task *Task) Start() error {
 			return err
 		}
 		client.SetAccountPrefix(metaData.AccountPrefix)
-		utils.SafeGoWithRestart(func() { task.pollBlocks(client) })
+		utils.SafeGoWithRestart(func() { task.pollBlocksHandler(client) })
 	}
 	return nil
 }

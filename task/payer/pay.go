@@ -5,14 +5,45 @@ import (
 	"fee-station/pkg/db"
 	"fee-station/pkg/utils"
 	"fmt"
+	"math/big"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
-	"math/big"
 )
 
 var minReserveValue = big.NewInt(1e6)
+
+func (task *Task) CheckPayInfoHandler() {
+	ticker := time.NewTicker(time.Duration(task.taskTicker) * time.Second)
+	defer ticker.Stop()
+	retry := 0
+	for {
+		if retry > BlockRetryLimit {
+			utils.ShutdownRequestChannel <- struct{}{}
+			logrus.Errorf("CheckPayInfo reach retry limit")
+			return
+		}
+		select {
+		case <-task.stop:
+			logrus.Info("task CheckPayInfoHandler receive stop chan, will stop")
+			return
+		case <-ticker.C:
+			logrus.Infof("task CheckPayInfo start -----------")
+			err := task.CheckPayInfo(task.db)
+			if err != nil {
+				logrus.Errorf("task.CheckPayInfo err %s", err)
+				time.Sleep(BlockRetryInterval)
+				retry++
+				continue
+			}
+			logrus.Infof("task CheckPayInfo end -----------")
+			retry = 0
+		}
+	}
+}
 
 func (task Task) CheckPayInfo(db *db.WrapDb) error {
 	swapInfoList, err := dao_station.GetFeeStationSwapInfoListByState(db, utils.SwapStateAlreadySynced)
