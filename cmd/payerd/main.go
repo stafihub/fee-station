@@ -26,7 +26,8 @@ func _main() error {
 		return err
 	}
 	log.InitLogFile(cfg.LogFilePath + "/syncer")
-	logrus.Infof("config info:%+v ", cfg)
+	logrus.Infof("config info: \nkeystorePath: %s\npayerAccount: %s\nstafiHubEndpoint: %s\ngasPrice: %s\nlogFilePath: %s\ncoinMarketApi: %s\ncoinGeckoApi: %s\n",
+		cfg.KeystorePath, cfg.PayerAccount, cfg.StafiHubEndpoint, cfg.GasPrice, cfg.LogFilePath, cfg.CoinMarketApi, cfg.CoinGeckoApi)
 
 	//init db
 	db, err := db.NewDB(&db.Config{

@@ -26,7 +26,8 @@ func _main() error {
 		return err
 	}
 	log.InitLogFile(cfg.LogFilePath + "/station")
-	logrus.Infof("config info:%+v ", cfg)
+	logrus.Infof("config info: \nlistenAddr: %s\nswapRate: %s\nswapMaxLimit: %s\nswapMinLimit: %s\nlogFilePath: %s\ntokenInfo: %+v\n",
+		cfg.ListenAddr, cfg.SwapRate, cfg.SwapMaxLimit, cfg.SwapMinLimit, cfg.LogFilePath, cfg.TokenInfo)
 
 	//init db
 	db, err := db.NewDB(&db.Config{
