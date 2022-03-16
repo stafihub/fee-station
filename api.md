@@ -28,6 +28,11 @@
 
 ```
 <uuid hex string>:<stafihubAddress>
+
+example:
+
+5c64203df3974c409b14b49fe7c0bb79:stafi15lne70yk254s0pm2da6g59r82cjymzjqvvqxz7
+
 ```
 
 
