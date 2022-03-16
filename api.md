@@ -72,7 +72,7 @@ example:
 |         | swapMinLimit | N/A         | string | Yes         | null        | the min fis amount limit, decimals 6             |
 
 
-## 1. post swap info
+## 2. post swap info
 
 ### (1) description
 
