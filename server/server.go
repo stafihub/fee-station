@@ -84,6 +84,7 @@ func (svr *Server) InitOrUpdatePoolAddress() error {
 		metaData.CoinGeckoSymbol = tokenInfo.CoinGeckoSymbol
 		metaData.PoolAddress = tokenInfo.PoolAddress
 		metaData.Endpoint = tokenInfo.Endpoint
+		metaData.Decimals = tokenInfo.Decimals
 		if tokenInfo.StartHeight > metaData.SyncedBlockHeight {
 			metaData.SyncedBlockHeight = tokenInfo.StartHeight - 1
 		}

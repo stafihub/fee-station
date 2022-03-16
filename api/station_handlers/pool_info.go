@@ -11,14 +11,15 @@ import (
 
 type PoolInfo struct {
 	Symbol      string `json:"symbol"`
+	Decimals    uint8  `json:"decimals"`
 	PoolAddress string `json:"poolAddress"` //base58,bech32 or hex
 	SwapRate    string `json:"swapRate"`    //decimals 6
 }
 
 type RspPoolInfo struct {
 	PoolInfoList []PoolInfo `json:"poolInfoList"`
-	SwapMaxLimit string     `json:"swapMaxLimit"` //decimals 12
-	SwapMinLimit string     `json:"swapMinLimit"` //decimals 12
+	SwapMaxLimit string     `json:"swapMaxLimit"` //decimals 6
+	SwapMinLimit string     `json:"swapMinLimit"` //decimals 6
 }
 
 // @Summary get pool info
@@ -92,6 +93,7 @@ func (h *Handler) HandleGetPoolInfo(c *gin.Context) {
 			Symbol:      l.Symbol,
 			PoolAddress: l.PoolAddress,
 			SwapRate:    realSwapRateDeci.StringFixed(0),
+			Decimals:    l.Decimals,
 		})
 	}
 

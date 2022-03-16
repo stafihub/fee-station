@@ -72,15 +72,8 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "token symbol",
-                        "name": "symbol",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "tx hash hex string",
-                        "name": "txHash",
+                        "description": "uuid hex string",
+                        "name": "uuid",
                         "in": "query",
                         "required": true
                     }
@@ -97,7 +90,51 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/station_handlers.RspSwapInfo"
+                                            "$ref": "#/definitions/station_handlers.RspGetSwapInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "post swap info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "v1"
+                ],
+                "summary": "post swap info",
+                "parameters": [
+                    {
+                        "description": "user swap info",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/station_handlers.ReqPostSwapInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Rsp"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/station_handlers.RspPostSwapInfo"
                                         }
                                     }
                                 }
@@ -112,6 +149,9 @@ var doc = `{
         "station_handlers.PoolInfo": {
             "type": "object",
             "properties": {
+                "decimals": {
+                    "type": "integer"
+                },
                 "poolAddress": {
                     "description": "base58,bech32 or hex",
                     "type": "string"
@@ -125,6 +165,37 @@ var doc = `{
                 }
             }
         },
+        "station_handlers.ReqPostSwapInfo": {
+            "type": "object",
+            "properties": {
+                "inAmount": {
+                    "description": "decimal",
+                    "type": "string"
+                },
+                "minOutAmount": {
+                    "description": "decimal",
+                    "type": "string"
+                },
+                "poolAddress": {
+                    "type": "string"
+                },
+                "stafihubAddress": {
+                    "description": "hex",
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                }
+            }
+        },
+        "station_handlers.RspGetSwapInfo": {
+            "type": "object",
+            "properties": {
+                "swapStatus": {
+                    "type": "integer"
+                }
+            }
+        },
         "station_handlers.RspPoolInfo": {
             "type": "object",
             "properties": {
@@ -135,20 +206,20 @@ var doc = `{
                     }
                 },
                 "swapMaxLimit": {
-                    "description": "decimals 12",
+                    "description": "decimals 6",
                     "type": "string"
                 },
                 "swapMinLimit": {
-                    "description": "decimals 12",
+                    "description": "decimals 6",
                     "type": "string"
                 }
             }
         },
-        "station_handlers.RspSwapInfo": {
+        "station_handlers.RspPostSwapInfo": {
             "type": "object",
             "properties": {
-                "swapStatus": {
-                    "type": "integer"
+                "uuid": {
+                    "type": "string"
                 }
             }
         },

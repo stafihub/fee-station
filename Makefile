@@ -9,7 +9,6 @@ get:
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/stationd && env GOARCH=amd64 go build -o ../../build/stationd
-	cd cmd/syncerd && env GOARCH=amd64 go build -o ../../build/syncerd
 	cd cmd/payerd && env GOARCH=amd64 go build -o ../../build/payerd
 	cd cmd/keytool && env GOARCH=amd64 go build -o ../../build/keytool
 

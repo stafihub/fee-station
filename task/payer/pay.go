@@ -31,7 +31,7 @@ func (task *Task) CheckPayInfoHandler() {
 			logrus.Info("task CheckPayInfoHandler receive stop chan, will stop")
 			return
 		case <-ticker.C:
-			logrus.Infof("task CheckPayInfo start -----------")
+			logrus.Debugf("task CheckPayInfo start -----------")
 			err := task.CheckPayInfo(task.db)
 			if err != nil {
 				logrus.Errorf("task.CheckPayInfo err %s", err)
@@ -39,7 +39,7 @@ func (task *Task) CheckPayInfoHandler() {
 				retry++
 				continue
 			}
-			logrus.Infof("task CheckPayInfo end -----------")
+			logrus.Debugf("task CheckPayInfo end -----------")
 			retry = 0
 		}
 	}
@@ -55,7 +55,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 	}
 
 	// ensure balance is enough
-	balanceRes, err := task.client.QueryBalance(task.client.GetFromAddress(), task.client.GetDenom(), 0)
+	balanceRes, err := task.stafihubClient.QueryBalance(task.stafihubClient.GetFromAddress(), task.stafihubClient.GetDenom(), 0)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 
 		willTransferAmount = tempAmount
 		transferMaxIndex = i
-		msg := xBankTypes.NewMsgSend(task.client.GetFromAddress(), stafihubAddress, types.NewCoins(types.NewCoin(task.client.GetDenom(), types.NewIntFromBigInt(outAmountDeci.BigInt()))))
+		msg := xBankTypes.NewMsgSend(task.stafihubClient.GetFromAddress(), stafihubAddress, types.NewCoins(types.NewCoin(task.stafihubClient.GetDenom(), types.NewIntFromBigInt(outAmountDeci.BigInt()))))
 
 		msgs = append(msgs, msg)
 	}
@@ -99,7 +99,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 	}
 	logrus.Infof("will pay recievers: %v \n", msgs)
 
-	txHash, err := task.client.BroadcastBatchMsg(msgs)
+	txHash, err := task.stafihubClient.BroadcastBatchMsg(msgs)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 		if i > transferMaxIndex {
 			break
 		}
-		new, err := dao_station.GetFeeStationSwapInfoBySymbolTx(db, swapInfo.Symbol, swapInfo.Txhash)
+		new, err := dao_station.GetFeeStationSwapInfoByUuid(db, swapInfo.Uuid)
 		if err != nil {
 			return err
 		}

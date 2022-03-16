@@ -12,6 +12,7 @@ type FeeStationMetaData struct {
 	PoolAddress       string `gorm:"type:varchar(80);not null;default:'';column:pool_address"`
 	CoinmarketSymbol  string `gorm:"type:varchar(10);not null;default:'';column:coinmarket_symbol"`
 	CoinGeckoSymbol   string `gorm:"type:varchar(10);not null;default:'';column:coingecko_symbol"`
+	Decimals          uint8  `gorm:"type:tinyint(1);unsigned;not null;default:0;column:decimals"`
 }
 
 func (f FeeStationMetaData) TableName() string {

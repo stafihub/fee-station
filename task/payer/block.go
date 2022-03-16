@@ -4,11 +4,11 @@ import (
 	dao_station "fee-station/dao/station"
 	"fee-station/pkg/utils"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/cosmos-relay-sdk/client"
 	"gorm.io/gorm"
@@ -63,7 +63,7 @@ func (t *Task) pollBlocksHandler(client *hubClient.Client) {
 				logrus.Error("Failed to write to blockstore", "err", err)
 			}
 			if willDealBlock%1000 == 0 {
-				logrus.Info("Have dealed atom block ", "height", willDealBlock)
+				logrus.Infof("have dealed block height: %d, symbol: %s", willDealBlock, client.GetDenom())
 			}
 			willDealBlock++
 
@@ -73,9 +73,6 @@ func (t *Task) pollBlocksHandler(client *hubClient.Client) {
 }
 
 func (t *Task) processBlockEvents(client *hubClient.Client, currentBlock int64, metaData *dao_station.FeeStationMetaData) error {
-	if currentBlock%100 == 0 {
-		logrus.Debug("processEvents", "blockNum", currentBlock)
-	}
 
 	txs, err := client.GetBlockTxs(currentBlock)
 	if err != nil {
@@ -116,78 +113,101 @@ func (t *Task) processStringEvents(client *hubClient.Client, event types.StringE
 			return fmt.Errorf("amount format err, %s", err)
 		}
 		if coin.GetDenom() != metaData.Symbol {
-			logrus.Errorf("transfer denom not equal,expect %s got %s", metaData.Symbol, coin.GetDenom())
+			logrus.Warnf("transfer denom not equal,expect %s got %s", metaData.Symbol, coin.GetDenom())
 			return nil
 		}
 
-		_, err = dao_station.GetFeeStationSwapInfoBySymbolTx(t.db, metaData.Symbol, txHash)
+		_, err = dao_station.GetFeeStationTransInfoByTx(t.db, txHash)
 		if err == nil {
 			return nil
 		}
 		if err != nil && err != gorm.ErrRecordNotFound {
 			return err
 		}
-		fisPrice, err := dao_station.GetFeeStationTokenPriceBySymbol(t.db, utils.SymbolFis)
-		if err != nil {
-			return err
-		}
-		atomPrice, err := dao_station.GetFeeStationTokenPriceBySymbol(t.db, metaData.Symbol)
-		if err != nil {
-			return err
-		}
 
-		swapInfo := &dao_station.FeeStationSwapInfo{
+		transInfo := &dao_station.FeeStationTransInfo{
+			Uuid:            "",
 			StafihubAddress: "",
-			State:           utils.SwapStateAlreadySynced,
 			Symbol:          metaData.Symbol,
 			Txhash:          txHash,
 			PoolAddress:     recipient,
 			InAmount:        coin.Amount.String(),
-			OutAmount:       "",
-			InTokenPrice:    atomPrice.Price,
-			OutTokenPrice:   fisPrice.Price,
-			PayInfo:         "",
 		}
+
 		// check memo
 		memoInTx, err := client.GetTxMemo(txValue)
 		if err != nil {
-			swapInfo.State = utils.SwapStateMemoFailed
-			return dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+			logrus.Warnf("memo format err: %s", err.Error())
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
 		}
-		_, err = types.GetFromBech32(memoInTx, "stafi")
-		if err != nil {
-			swapInfo.State = utils.SwapStateMemoFailed
-			return dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+		memos := strings.Split(memoInTx, ":")
+		if len(memos) != 2 {
+			logrus.Warnf("memo format err, memo: %s", memoInTx)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
 		}
-		swapInfo.StafihubAddress = memoInTx
+		uuid := memos[0]
+		stafihubAddress := memos[1]
 
-		// cal outamount
-		fisPriceDeci, err := decimal.NewFromString(fisPrice.Price)
+		_, err = types.GetFromBech32(stafihubAddress, "stafi")
+		if err != nil {
+			logrus.Warnf("stafi address err, memo: %s", memoInTx)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+		if len(uuid) == 0 {
+			logrus.Warnf("uuid err, memo: %s", memoInTx)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		// set stafi address and uuid
+		transInfo.StafihubAddress = stafihubAddress
+		transInfo.Uuid = uuid
+
+		swapInfo, err := dao_station.GetFeeStationSwapInfoByUuid(t.db, uuid)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+		//uuid not exist
+		if err != nil && err == gorm.ErrRecordNotFound {
+			logrus.Warnf("uuid not exist in swap info, tranInfo: %+v", transInfo)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		// stake != notSynced
+		if swapInfo.State != utils.SwapStateNotSynced {
+			logrus.Warnf("swap state not match, swap state: %d, transInfo: %+v", swapInfo.State, transInfo)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		// case below will update swapinfo's state
+		//amount not match
+		if !strings.EqualFold(swapInfo.InAmount, transInfo.InAmount) {
+			logrus.Warnf("amount not match, tranInfo: %+v, swapInfo: %+v", transInfo, swapInfo)
+			swapInfo.State = utils.SwapStateInAmountNotMatch
+			err := dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+			if err != nil {
+				return err
+			}
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+		//stafihub address not match
+		if !strings.EqualFold(swapInfo.StafihubAddress, transInfo.StafihubAddress) {
+			logrus.Warnf("stafi address not match, tranInfo: %+v, swapInfo: %+v", transInfo, swapInfo)
+			swapInfo.State = utils.SwapStateStafihubAddressNotMatch
+			err := dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+			if err != nil {
+				return err
+			}
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		//update state
+		swapInfo.State = utils.SwapStateAlreadySynced
+		logrus.Debug("find transfer event", "block number", blockNumber)
+		err = dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
 		if err != nil {
 			return err
 		}
-		atomPriceDeci, err := decimal.NewFromString(atomPrice.Price)
-		if err != nil {
-			return err
-		}
-
-		swapRateDeci := t.swapRate
-		inAmountDeci := decimal.NewFromBigInt(coin.Amount.BigInt(), 0)
-
-		outAmount := atomPriceDeci.Mul(swapRateDeci).Mul(inAmountDeci).Div(fisPriceDeci)
-
-		if outAmount.LessThan(t.swapMinLimit) {
-			swapInfo.OutAmount = outAmount.StringFixed(0)
-			swapInfo.State = utils.SwapStateAmountLessThanMinLimit
-			return dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
-		}
-
-		if outAmount.GreaterThan(t.swapMaxLimit) {
-			outAmount = t.swapMaxLimit
-		}
-		logrus.Debug("find swap event", "block number", blockNumber)
-		swapInfo.OutAmount = outAmount.StringFixed(0)
-		return dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+		return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
 
 	default:
 		return nil

@@ -9,32 +9,39 @@ import (
 
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
-	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
+	hubClient "github.com/stafihub/cosmos-relay-sdk/client"
+	stafihubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 )
 
 // Frequency of polling for a new block
 const (
 	BlockRetryInterval = time.Second * 6
 	BlockRetryLimit    = 100
-	BlockConfirmNumber = int64(6)
+	BlockConfirmNumber = int64(1)
 )
 
 type Task struct {
-	taskTicker   int64
-	client       *hubClient.Client
-	payerAccount string
-	swapMaxLimit decimal.Decimal
-	stop         chan struct{}
-	db           *db.WrapDb
+	taskTicker     int64
+	coinMarketApi  string
+	coinGeckoApi   string
+	swapMinLimit   decimal.Decimal
+	swapMaxLimit   decimal.Decimal
+	swapRate       decimal.Decimal
+	stafihubClient *stafihubClient.Client
+	payerAccount   string
+	stop           chan struct{}
+	db             *db.WrapDb
 }
 
-func NewTask(cfg *config.Config, dao *db.WrapDb, client *hubClient.Client) *Task {
+func NewTask(cfg *config.Config, dao *db.WrapDb, stafihubClient *stafihubClient.Client) *Task {
 	s := &Task{
-		taskTicker:   cfg.TaskTicker,
-		payerAccount: cfg.PayerAccount,
-		client:       client,
-		stop:         make(chan struct{}),
-		db:           dao,
+		taskTicker:     cfg.TaskTicker,
+		coinMarketApi:  cfg.CoinMarketApi,
+		coinGeckoApi:   cfg.CoinGeckoApi,
+		payerAccount:   cfg.PayerAccount,
+		stafihubClient: stafihubClient,
+		stop:           make(chan struct{}),
+		db:             dao,
 	}
 	return s
 }
@@ -44,11 +51,37 @@ func (task *Task) Start() error {
 	if err != nil {
 		return err
 	}
-	maxLimitDeci, err := decimal.NewFromString(limitInfo.SwapMaxLimit)
+	maxLimit, err := decimal.NewFromString(limitInfo.SwapMaxLimit)
 	if err != nil {
 		return err
 	}
-	task.swapMaxLimit = maxLimitDeci
+	minLimit, err := decimal.NewFromString(limitInfo.SwapMinLimit)
+	if err != nil {
+		return err
+	}
+	swapRate, err := decimal.NewFromString(limitInfo.SwapRate)
+	if err != nil {
+		return err
+	}
+	swapRate = swapRate.Div(decimal.NewFromInt(1e6))
+	task.swapMaxLimit = maxLimit
+	task.swapMinLimit = minLimit
+	task.swapRate = swapRate
+
+	utils.SafeGoWithRestart(task.PriceUpdateHandler)
+
+	metaDatas, err := dao_station.GetMetaDataList(task.db)
+	if err != nil {
+		return err
+	}
+	for _, metaData := range metaDatas {
+		client, err := hubClient.NewClient(nil, "", "", metaData.Endpoint)
+		if err != nil {
+			return err
+		}
+		client.SetAccountPrefix(metaData.AccountPrefix)
+		utils.SafeGoWithRestart(func() { task.pollBlocksHandler(client) })
+	}
 	utils.SafeGoWithRestart(task.CheckPayInfoHandler)
 	logrus.Info("payer start")
 	return nil

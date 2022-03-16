@@ -10,23 +10,22 @@ import (
 	"fee-station/pkg/utils"
 	"fee-station/task/payer"
 	"fmt"
-	"os"
-	"runtime"
-	"runtime/debug"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/sirupsen/logrus"
-	hubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
+	stafihubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
+	"os"
+	"runtime"
+	"runtime/debug"
 )
 
 func _main() error {
-	cfg, err := config.Load("conf_payer.toml")
+	cfg, err := config.Load("conf_syncer.toml")
 	if err != nil {
 		fmt.Printf("loadConfig err: %s", err)
 		return err
 	}
-	log.InitLogFile(cfg.LogFilePath + "/payer")
+	log.InitLogFile(cfg.LogFilePath + "/syncer")
 	logrus.Infof("config info:%+v ", cfg)
 
 	//init db
@@ -60,7 +59,7 @@ func _main() error {
 	if err != nil {
 		return err
 	}
-	client, err := hubClient.NewClient(key, cfg.PayerAccount, cfg.GasPrice, cfg.StafiHubEndpoint)
+	client, err := stafihubClient.NewClient(key, cfg.PayerAccount, cfg.GasPrice, cfg.StafiHubEndpoint)
 	if err != nil {
 		return fmt.Errorf("hubClient.NewClient err: %s", err)
 	}

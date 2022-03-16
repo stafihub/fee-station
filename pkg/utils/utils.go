@@ -47,8 +47,9 @@ func FloatToStr(f float64) string {
 }
 
 func Uuid() string {
-	return uuid.NewV4().String()
+	return hex.EncodeToString(uuid.NewV4().Bytes())
 }
+
 func IsImageExt(extName string) bool {
 	var supportExtNames = map[string]bool{
 		".jpg": true, ".jpeg": true, ".png": true, ".ico": true, ".svg": true, ".bmp": true, ".gif": true,

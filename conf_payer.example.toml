@@ -1,3 +1,5 @@
+coinGeckoApi = "https://api.coingecko.com/api/v3/simple/price" 
+coinMarketApi = "https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest" 
 gasPrice = "0.001ufis" 
 keystorePath = "/Users/tpkeeper/.stafihub" 
 logFilePath = "" 

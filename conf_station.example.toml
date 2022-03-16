@@ -1,17 +1,18 @@
 listenAddr = ":8083" 
 logFilePath = "" 
 mode = "release" # debug or release
-swapMaxLimit = "150000000" #decimals 6
-swapMinLimit = "1000000" #decimals 6
-swapRate = "1600000" #decimals 6
+swapMaxLimit = "150000" #decimals 6
+swapMinLimit = "1000" #decimals 6
+swapRate = "16000" #decimals 6
 
 [[tokenInfo]]
-AccountPrefix = "cosmos"
-CoinGeckoSymbol = "cosmos"
-CoinMarketSymbol = "ATOM"
-Endpoint = "http://127.0.0.1:16657"
-PoolAddress = "cosmos13mwxtgrljf9d5r72sc28496ua4lsga0jvmqz8x"
-StartHeight = 0
+accountPrefix = "cosmos"
+coinGeckoSymbol = "cosmos"
+coinMarketSymbol = "ATOM"
+decimals = 6
+endpoint = "http://127.0.0.1:16657"
+poolAddress = "cosmos13mwxtgrljf9d5r72sc28496ua4lsga0jvmqz8x"
+startHeight = 0
 
 [db]
 host = "127.0.0.1" # mysql host ip

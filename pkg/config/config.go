@@ -19,6 +19,8 @@ type Config struct {
 	PayerAccount     string
 	StafiHubEndpoint string
 	GasPrice         string
+	CoinMarketApi    string
+	CoinGeckoApi     string
 
 	// station
 	ListenAddr   string
@@ -28,9 +30,6 @@ type Config struct {
 	Mode         string //release debug test
 	TokenInfo    []TokenInfo
 
-	// syncer
-	CoinMarketApi string
-	CoinGeckoApi  string
 	//common
 	Db Db
 }
@@ -42,6 +41,7 @@ type TokenInfo struct {
 	CoinMarketSymbol string
 	CoinGeckoSymbol  string
 	StartHeight      uint64
+	Decimals         uint8
 }
 
 type Db struct {
