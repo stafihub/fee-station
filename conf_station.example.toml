@@ -6,13 +6,13 @@ swapMinLimit = "1000" #decimals 6
 swapRate = "16000" #decimals 6
 
 [[tokenInfo]]
-accountPrefix = "cosmos"
-coinGeckoSymbol = "cosmos"
-coinMarketSymbol = "ATOM"
-decimals = 6
-endpoint = "http://127.0.0.1:16657"
-poolAddress = "cosmos13mwxtgrljf9d5r72sc28496ua4lsga0jvmqz8x"
-startHeight = 0
+accountPrefix = "cosmos" # iris: iaa
+coinGeckoSymbol = "cosmos" # iris: iris-network
+coinMarketSymbol = "ATOM" # iris: IRIS
+decimals = 6 
+endpoint = "http://127.0.0.1:16657" 
+poolAddress = "cosmos13mwxtgrljf9d5r72sc28496ua4lsga0jvmqz8x" 
+startHeight = 0 
 
 [db]
 host = "127.0.0.1" # mysql host ip
