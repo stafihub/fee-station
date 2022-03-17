@@ -25,6 +25,9 @@ func _main() error {
 		fmt.Printf("loadConfig err: %s", err)
 		return err
 	}
+	if cfg.Mode == "debug" {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
 	log.InitLogFile(cfg.LogFilePath + "/station")
 	logrus.Infof("config info: \nlistenAddr: %s\nswapRate: %s\nswapMaxLimit: %s\nswapMinLimit: %s\nlogFilePath: %s\ntokenInfo: %+v\n",
 		cfg.ListenAddr, cfg.SwapRate, cfg.SwapMaxLimit, cfg.SwapMinLimit, cfg.LogFilePath, cfg.TokenInfo)

@@ -63,6 +63,14 @@ func Load(defaultCfgFile string) (*Config, error) {
 	if cfg.LogFilePath == "" {
 		cfg.LogFilePath = "./log_data"
 	}
+
+	switch cfg.Mode {
+	case "release":
+	case "debug":
+	default:
+		cfg.Mode = "release"
+	}
+
 	return &cfg, nil
 }
 

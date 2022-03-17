@@ -6,13 +6,13 @@ swapMinLimit = "1000" #decimals 6
 swapRate = "16000" #decimals 6
 
 [[tokenInfo]]
-accountPrefix = "cosmos" # iris: iaa
-coinGeckoSymbol = "cosmos" # iris: iris-network
-coinMarketSymbol = "ATOM" # iris: IRIS
+accountPrefix = "iaa" # iris: iaa cosmos: cosmos
+coinGeckoSymbol = "iris-network" # iris: iris-network cosmos: cosmos
+coinMarketSymbol = "IRIS" # iris: IRIS cosmos: ATOM
 decimals = 6 
-endpoint = "http://127.0.0.1:16657" 
-poolAddress = "cosmos13mwxtgrljf9d5r72sc28496ua4lsga0jvmqz8x" 
-startHeight = 0 
+endpoint = "https://test-iris-rpc1.stafihub.io:443" 
+poolAddress = "iaa1yjcl77yltt0swzrq2n6pqw836qrp9l2aaus4xl" 
+startHeight = 62000 
 
 [db]
 host = "127.0.0.1" # mysql host ip

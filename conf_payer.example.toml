@@ -3,6 +3,7 @@ coinMarketApi = "https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/late
 gasPrice = "0.001ufis" 
 keystorePath = "/Users/tpkeeper/.stafihub" 
 logFilePath = "" 
+mode = "debug" # debug or release
 payerAccount = "relay1" 
 stafiHubEndPoint = "http://127.0.0.1:26657" 
 taskTicker = 15 # seconds
