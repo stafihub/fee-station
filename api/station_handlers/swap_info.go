@@ -149,6 +149,7 @@ func (h *Handler) HandlePostSwapInfo(c *gin.Context) {
 	}
 	if outAmount.Cmp(minOutAmountDeci) < 0 {
 		utils.Err(c, codePriceSlideErr, "real out amount < min out amount")
+		logrus.Errorf("real out amount: %s < min out amount: %s", outAmount.StringFixed(0), req.MinOutAmount)
 		return
 	}
 
@@ -161,6 +162,8 @@ func (h *Handler) HandlePostSwapInfo(c *gin.Context) {
 	swapInfo.PoolAddress = req.PoolAddress
 	swapInfo.InAmount = req.InAmount
 	swapInfo.MinOutAmount = req.MinOutAmount
+	swapInfo.InTokenPrice = symbolPrice.Price
+	swapInfo.OutTokenPrice = fisPrice.Price
 	swapInfo.SwapRate = realSwapRateDeci.StringFixed(0)
 	swapInfo.OutAmount = outAmount.StringFixed(0)
 	swapInfo.State = utils.SwapStateNotSynced
