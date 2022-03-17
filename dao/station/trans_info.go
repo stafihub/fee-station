@@ -26,3 +26,8 @@ func GetFeeStationTransInfoByTx(db *db.WrapDb, tx string) (info *FeeStationTrans
 	err = db.Take(info, "tx_hash = ?", tx).Error
 	return
 }
+
+func GetFeeStationTransInfoTotalCount(db *db.WrapDb, symbol string) (count int64, err error) {
+	err = db.Model(&FeeStationTransInfo{}).Where("symbol = ?", symbol).Count(&count).Error
+	return
+}

@@ -14,83 +14,99 @@ import (
 	"gorm.io/gorm"
 )
 
-func (t *Task) pollBlocksHandler(client *hubClient.Client) {
-	metaData, err := dao_station.GetMetaData(t.db, client.GetDenom())
-	if err != nil {
-		utils.ShutdownRequestChannel <- struct{}{}
-		return
-	}
+var (
+	pageLimit = 10
+)
 
-	var willDealBlock = metaData.SyncedBlockHeight + 1
-	var retry = 0
+func (task *Task) SyncTransferTxHandler(client *hubClient.Client) {
+	ticker := time.NewTicker(time.Duration(task.taskTicker) * time.Second)
+	defer ticker.Stop()
+
+	retry := 0
 	for {
-		select {
-		case <-t.stop:
-			logrus.Info("task pollBlocksHandler receive stop chan, will stop")
+		if retry > BlockRetryLimit {
+			utils.ShutdownRequestChannel <- struct{}{}
 			return
-		default:
-			if retry > BlockRetryLimit {
-				utils.ShutdownRequestChannel <- struct{}{}
-				logrus.Errorf("pollBlocks reach retry limit ")
-				return
-			}
+		}
 
-			latestBlk, err := client.GetCurrentBlockHeight()
+		select {
+		case <-task.stop:
+			logrus.Info("SyncTransferTxHandler has stopped")
+			return
+		case <-ticker.C:
+			logrus.Debugf("task SyncTransferTxHandler start -----------")
+			err := task.SyncTransferTx(client)
 			if err != nil {
-				logrus.Error("Failed to fetch latest blockNumber", "err", err)
+				logrus.Errorf("task.SyncTransferTx err %s", err)
+				time.Sleep(BlockRetryInterval)
 				retry++
-				time.Sleep(BlockRetryInterval)
 				continue
 			}
-			// Sleep if the block we want comes after the most recently finalized block
-			if int64(willDealBlock)+BlockConfirmNumber > latestBlk {
-				time.Sleep(BlockRetryInterval)
-				continue
-			}
-			err = t.processBlockEvents(client, int64(willDealBlock), metaData)
-			if err != nil {
-				logrus.Error("Failed to process events in block", "block", willDealBlock, "err", err)
-				retry++
-				time.Sleep(BlockRetryInterval)
-				continue
-			}
-
-			// Write to blockstore
-
-			metaData.SyncedBlockHeight = willDealBlock
-			err = dao_station.UpOrInMetaData(t.db, metaData)
-			if err != nil {
-				logrus.Error("Failed to write to blockstore", "err", err)
-			}
-			if willDealBlock%1000 == 0 {
-				logrus.Infof("have dealed block height: %d, symbol: %s", willDealBlock, client.GetDenom())
-			}
-			willDealBlock++
-
+			logrus.Debugf("task SyncTransferTxHandler end -----------")
 			retry = 0
 		}
 	}
 }
 
-func (t *Task) processBlockEvents(client *hubClient.Client, currentBlock int64, metaData *dao_station.FeeStationMetaData) error {
-
-	txs, err := client.GetBlockTxs(currentBlock)
+func (t *Task) SyncTransferTx(client *hubClient.Client) error {
+	metaData, err := dao_station.GetMetaData(t.db, client.GetDenom())
 	if err != nil {
-		return fmt.Errorf("client.GetBlockTxs failed: %s", err)
+		return err
 	}
-	for _, tx := range txs {
-		for _, log := range tx.Logs {
-			for _, event := range log.Events {
-				err := t.processStringEvents(client, event, currentBlock, tx.TxHash, tx.Tx.Value, metaData)
-				if err != nil {
-					return err
+
+	poolAddress := metaData.PoolAddress
+
+	filter := []string{fmt.Sprintf("transfer.recipient='%s'", poolAddress), "message.module='bank'"}
+
+	for {
+
+		totalCount, err := dao_station.GetFeeStationTransInfoTotalCount(t.db, client.GetDenom())
+		if err != nil {
+			return err
+		}
+		txResPre, err := client.GetTxs(filter, int(1), pageLimit, "asc")
+		if err != nil {
+			return err
+		}
+		usePage := totalCount/int64(pageLimit) + 1
+
+		//sip if localdb have
+		if uint64(usePage) > txResPre.PageTotal {
+			return nil
+		}
+
+		txRes, err := client.GetTxs(filter, int(usePage), pageLimit, "asc")
+		if err != nil {
+			return err
+		}
+
+		for _, tx := range txRes.Txs {
+			_, err := dao_station.GetFeeStationTransInfoByTx(t.db, tx.TxHash)
+			//skip if exist
+			if err == nil {
+				continue
+			}
+
+			for _, log := range tx.Logs {
+				for _, event := range log.Events {
+					err := t.processStringEvents(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
+					if err != nil {
+						return err
+					}
 				}
 			}
+
+		}
+
+		//just break when get all
+		if txRes.PageTotal == txRes.PageNumber {
+			break
 		}
 	}
 
 	return nil
 }
+
 
 func (t *Task) processStringEvents(client *hubClient.Client, event types.StringEvent, blockNumber int64, txHash string, txValue []byte, metaData *dao_station.FeeStationMetaData) error {
 	logrus.Debug("processStringEvents", "event", event)
@@ -100,29 +116,17 @@ func (t *Task) processStringEvents(client *hubClient.Client, event types.StringE
 		// not support multisend now
 		if len(event.Attributes) != 3 {
 			logrus.Debug("got multisend transfer event", "txHash", txHash, "event", event)
-			return nil
+			return fmt.Errorf("got multisend event")
 		}
 		// return if not to this pool
 		recipient := event.Attributes[0].Value
 		if recipient != metaData.PoolAddress {
-			return nil
+			return fmt.Errorf("recipient not match")
 		}
 
 		coin, err := types.ParseCoinNormalized(event.Attributes[2].Value)
 		if err != nil {
 			return fmt.Errorf("amount format err, %s", err)
-		}
-		if coin.GetDenom() != metaData.Symbol {
-			logrus.Warnf("transfer denom not equal,expect %s got %s", metaData.Symbol, coin.GetDenom())
-			return nil
-		}
-
-		_, err = dao_station.GetFeeStationTransInfoByTx(t.db, txHash)
-		if err == nil {
-			return nil
-		}
-		if err != nil && err != gorm.ErrRecordNotFound {
-			return err
 		}
 
 		transInfo := &dao_station.FeeStationTransInfo{
@@ -132,6 +136,21 @@ func (t *Task) processStringEvents(client *hubClient.Client, event types.StringE
 			Txhash:          txHash,
 			PoolAddress:     recipient,
 			InAmount:        coin.Amount.String(),
+		}
+
+		if coin.GetDenom() != metaData.Symbol {
+			logrus.Warnf("transfer denom not equal, expect %s got %s, transinfo: %+v", metaData.Symbol, coin.GetDenom(), transInfo)
+			dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+			return nil
+		}
+
+		// skip if already exists
+		_, err = dao_station.GetFeeStationTransInfoByTx(t.db, txHash)
+		if err == nil {
+			return nil
+		}
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
 		}
 
 		// check memo

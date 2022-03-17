@@ -85,9 +85,6 @@ func (svr *Server) InitOrUpdatePoolAddress() error {
 		metaData.PoolAddress = tokenInfo.PoolAddress
 		metaData.Endpoint = tokenInfo.Endpoint
 		metaData.Decimals = tokenInfo.Decimals
-		if tokenInfo.StartHeight > metaData.SyncedBlockHeight {
-			metaData.SyncedBlockHeight = tokenInfo.StartHeight - 1
-		}
 		err = dao_station.UpOrInMetaData(svr.db, metaData)
 		if err != nil {
 			return err

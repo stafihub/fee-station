@@ -5,14 +5,13 @@ import "fee-station/pkg/db"
 // metadata of other chain
 type FeeStationMetaData struct {
 	db.BaseModel
-	Symbol            string `gorm:"type:varchar(10);not null;default:'';column:symbol;uniqueIndex"`         // uatom ...
-	SyncedBlockHeight uint64 `gorm:"type:bigint(20);unsigned;not null;default:0;column:synced_block_height"` //latest block height have dealed
-	Endpoint          string `gorm:"type:varchar(50);not null;default:'';column:endpoint"`
-	AccountPrefix     string `gorm:"type:varchar(10);not null;default:'';column:account_prefix"`
-	PoolAddress       string `gorm:"type:varchar(80);not null;default:'';column:pool_address"`
-	CoinmarketSymbol  string `gorm:"type:varchar(20);not null;default:'';column:coinmarket_symbol"`
-	CoinGeckoSymbol   string `gorm:"type:varchar(20);not null;default:'';column:coingecko_symbol"`
-	Decimals          uint8  `gorm:"type:tinyint(1);unsigned;not null;default:0;column:decimals"`
+	Symbol           string `gorm:"type:varchar(10);not null;default:'';column:symbol;uniqueIndex"` // uatom ...
+	Endpoint         string `gorm:"type:varchar(50);not null;default:'';column:endpoint"`
+	AccountPrefix    string `gorm:"type:varchar(10);not null;default:'';column:account_prefix"`
+	PoolAddress      string `gorm:"type:varchar(80);not null;default:'';column:pool_address"`
+	CoinmarketSymbol string `gorm:"type:varchar(20);not null;default:'';column:coinmarket_symbol"`
+	CoinGeckoSymbol  string `gorm:"type:varchar(20);not null;default:'';column:coingecko_symbol"`
+	Decimals         uint8  `gorm:"type:tinyint(1);unsigned;not null;default:0;column:decimals"`
 }
 
 func (f FeeStationMetaData) TableName() string {

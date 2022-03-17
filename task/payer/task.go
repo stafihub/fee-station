@@ -80,7 +80,7 @@ func (task *Task) Start() error {
 			return err
 		}
 		client.SetAccountPrefix(metaData.AccountPrefix)
-		utils.SafeGoWithRestart(func() { task.pollBlocksHandler(client) })
+		utils.SafeGoWithRestart(func() { task.SyncTransferTxHandler(client) })
 	}
 	utils.SafeGoWithRestart(task.CheckPayInfoHandler)
 	logrus.Info("payer start")

@@ -40,7 +40,6 @@ type TokenInfo struct {
 	PoolAddress      string
 	CoinMarketSymbol string
 	CoinGeckoSymbol  string
-	StartHeight      uint64
 	Decimals         uint8
 }
 
