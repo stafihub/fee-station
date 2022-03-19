@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	dao_station "fee-station/dao/station"
 	"fee-station/pkg/utils"
+	"math/big"
 	"strings"
 	"time"
 
@@ -131,7 +132,7 @@ func (h *Handler) HandlePostSwapInfo(c *gin.Context) {
 	}
 	//out amount
 	symbolDecimals := metaData.Decimals
-	outAmount := realSwapRateDeci.Mul(inAmountDeci).Mul(decimal.NewFromInt(int64(symbolDecimals)))
+	outAmount := realSwapRateDeci.Mul(inAmountDeci).Div(decimal.NewFromBigInt(big.NewInt(1), int32(symbolDecimals)))
 	if outAmount.Cmp(swapMaxLimitDeci) > 0 {
 		outAmount = swapMaxLimitDeci
 	}
