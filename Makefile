@@ -5,7 +5,7 @@ all:build
 
 get:
 	@echo "  >  \033[32mDownloading & Installing all the modules...\033[0m "
-	go mod tidy && go mod download
+	go mod tidy  -compat=1.17&& go mod download
 build:
 	@echo "  >  \033[32mBuilding binary...\033[0m "
 	cd cmd/stationd && env GOARCH=amd64 go build -o ../../build/stationd

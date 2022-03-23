@@ -64,11 +64,10 @@ func (svr *Server) ApiServer() {
 
 func (svr *Server) InitOrUpdatePoolAddress() error {
 	for _, tokenInfo := range svr.cfg.TokenInfo {
-		client, err := hubClient.NewClient(nil, "", "", tokenInfo.Endpoint)
+		client, err := hubClient.NewClient(nil, "", "", tokenInfo.Endpoint, tokenInfo.AccountPrefix)
 		if err != nil {
 			return err
 		}
-		client.SetAccountPrefix(tokenInfo.AccountPrefix)
 		res, err := client.QueryBondedDenom()
 		if err != nil {
 			return err

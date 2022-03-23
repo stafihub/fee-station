@@ -75,11 +75,10 @@ func (task *Task) Start() error {
 		return err
 	}
 	for _, metaData := range metaDatas {
-		client, err := hubClient.NewClient(nil, "", "", metaData.Endpoint)
+		client, err := hubClient.NewClient(nil, "", "", metaData.Endpoint, metaData.AccountPrefix)
 		if err != nil {
 			return err
 		}
-		client.SetAccountPrefix(metaData.AccountPrefix)
 		utils.SafeGoWithRestart(func() { task.SyncTransferTxHandler(client) })
 	}
 	utils.SafeGoWithRestart(task.CheckPayInfoHandler)
