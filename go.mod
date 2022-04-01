@@ -16,8 +16,8 @@ require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.3.0
-	github.com/stafihub/cosmos-relay-sdk v0.0.0-20220330074928-d995d9f1af2b
-	github.com/stafihub/stafi-hub-relay-sdk v0.0.0-20220330125120-9c1db6ea48fc
+	github.com/stafihub/cosmos-relay-sdk v0.0.0-20220401051536-62ba9af35927
+	github.com/stafihub/stafi-hub-relay-sdk v0.0.0-20220401040750-13060259a284
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
@@ -170,7 +170,7 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/stafihub/cosmos-sdk v0.45.1-stafihub-0.0.3
+	github.com/cosmos/cosmos-sdk => github.com/stafihub/cosmos-sdk v0.45.1-stafihub-0.0.4
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
 )
