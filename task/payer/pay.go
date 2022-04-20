@@ -6,6 +6,7 @@ import (
 	"fee-station/pkg/utils"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -99,10 +100,42 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 	}
 	logrus.Infof("will pay recievers: %v \n", msgs)
 
-	txHash, err := task.stafihubClient.BroadcastBatchMsg(msgs)
-	if err != nil {
-		return err
+	retry := 0
+	var txHash string
+	for {
+		if retry >= BlockRetryLimit {
+			return fmt.Errorf("BroadcastBatchMsg reach retry limit: %s", err)
+		}
+		txHash, err = task.stafihubClient.BroadcastBatchMsg(msgs)
+		if err != nil {
+			if strings.Contains(strings.ToLower(err.Error()), "incorrect account sequence") {
+				logrus.Warn("BroadcastBatchMsg err will retry: %s", err)
+				time.Sleep(BlockRetryInterval)
+				retry++
+				continue
+			} else {
+				return err
+			}
+		}
+		break
 	}
+
+	retry = 0
+	var txRes *types.TxResponse
+	for {
+		if retry >= BlockRetryLimit {
+			return fmt.Errorf("QueryTxByHash reach retry limit: %s", err)
+		}
+		txRes, err = task.stafihubClient.QueryTxByHash(txHash)
+		if err != nil || txRes.Empty() || txRes.Height == 0 {
+			logrus.Warn("QueryTxByHash tx failed will retry query", err, txRes)
+			time.Sleep(BlockRetryInterval)
+			retry++
+			continue
+		}
+		break
+	}
+
 	logrus.Infof("pay ok, tx hash: %s", txHash)
 
 	// update swap state in db

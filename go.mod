@@ -17,7 +17,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.3.0
 	github.com/stafihub/cosmos-relay-sdk v0.0.0-20220412060100-e5ef4a907984
-	github.com/stafihub/stafi-hub-relay-sdk v0.0.0-20220412084549-c3199385cca1
+	github.com/stafihub/stafi-hub-relay-sdk v0.0.0-20220420074657-9aa777dc9570
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
