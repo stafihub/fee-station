@@ -20,6 +20,7 @@ type RspPoolInfo struct {
 	PoolInfoList []PoolInfo `json:"poolInfoList"`
 	SwapMaxLimit string     `json:"swapMaxLimit"` //decimals 6
 	SwapMinLimit string     `json:"swapMinLimit"` //decimals 6
+	PayerAddress string     `json:"payerAddress"`
 }
 
 // @Summary get pool info
@@ -60,6 +61,7 @@ func (h *Handler) HandleGetPoolInfo(c *gin.Context) {
 		PoolInfoList: make([]PoolInfo, 0),
 		SwapMaxLimit: swapMaxLimitDeci.StringFixed(0),
 		SwapMinLimit: swapMinLimitDeci.StringFixed(0),
+		PayerAddress: limitInfo.PayerAddress,
 	}
 
 	//get fis price

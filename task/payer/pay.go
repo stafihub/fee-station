@@ -135,6 +135,9 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 		}
 		break
 	}
+	if txRes.Code != 0 {
+		return fmt.Errorf("tx err: %s", txRes.String())
+	}
 
 	logrus.Infof("pay ok, tx hash: %s", txHash)
 

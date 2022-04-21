@@ -199,6 +199,9 @@ var doc = `{
         "station_handlers.RspPoolInfo": {
             "type": "object",
             "properties": {
+                "payerAddress": {
+                    "type": "string"
+                },
                 "poolInfoList": {
                     "type": "array",
                     "items": {

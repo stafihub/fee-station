@@ -107,7 +107,6 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 	return nil
 }
 
-
 func (t *Task) processStringEvents(client *hubClient.Client, event types.StringEvent, blockNumber int64, txHash string, txValue []byte, metaData *dao_station.FeeStationMetaData) error {
 	logrus.Debug("processStringEvents", "event", event)
 

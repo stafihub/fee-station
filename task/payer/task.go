@@ -7,6 +7,7 @@ import (
 	"fee-station/pkg/utils"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/cosmos-relay-sdk/client"
@@ -63,6 +64,17 @@ func (task *Task) Start() error {
 	if err != nil {
 		return err
 	}
+
+	bech32Addr, err := bech32.ConvertAndEncode(stafihubClient.GetAccountPrefix(), task.stafihubClient.GetFromAddress())
+	if err != nil {
+		return err
+	}
+	limitInfo.PayerAddress = bech32Addr
+	err = dao_station.UpOrInLimitInfo(task.db, limitInfo)
+	if err != nil {
+		return err
+	}
+
 	swapRate = swapRate.Div(decimal.NewFromInt(1e6))
 	task.swapMaxLimit = maxLimit
 	task.swapMinLimit = minLimit

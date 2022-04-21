@@ -70,6 +70,7 @@ example:
 |         |              | swapRate    | string | Yes         | null        | fis amount = token amount * swapRate, decimals 6 |
 |         | swapMaxLimit | N/A         | string | Yes         | null        | the max fis amount limit,  decimals 6            |
 |         | swapMinLimit | N/A         | string | Yes         | null        | the min fis amount limit, decimals 6             |
+|         | payerAddress | N/A         | string | Yes         | null        | payer address                                    |
 
 
 ## 2. post swap info

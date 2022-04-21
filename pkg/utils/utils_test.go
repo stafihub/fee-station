@@ -74,10 +74,10 @@ func TestVerifySigs25519(t *testing.T) {
 	t.Log(ok)
 }
 
-func TestGetPrice(t *testing.T){
-	url:="https://api.coingecko.com/api/v3/simple/price?ids=ethereum,polkadot,cosmos,stafi,kusama&vs_currencies=usd"
-	prices,err:=utils.GetPriceFromCoinGecko(url)
-	if err!=nil{
+func TestGetPrice(t *testing.T) {
+	url := "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,polkadot,cosmos,stafi,kusama&vs_currencies=usd"
+	prices, err := utils.GetPriceFromCoinGecko(url)
+	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(prices)

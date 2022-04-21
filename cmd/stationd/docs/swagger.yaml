@@ -36,6 +36,8 @@ definitions:
     type: object
   station_handlers.RspPoolInfo:
     properties:
+      payerAddress:
+        type: string
       poolInfoList:
         items:
           $ref: '#/definitions/station_handlers.PoolInfo'
