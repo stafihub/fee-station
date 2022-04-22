@@ -13,6 +13,7 @@ import (
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
+	"github.com/stafihub/rtoken-relay-core/common/core"
 )
 
 var minReserveValue = big.NewInt(1e6)
@@ -70,16 +71,21 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 	willTransferAmount := big.NewInt(0)
 	msgs := make([]types.Msg, 0)
 	transferMaxIndex := -1
+
+	done := core.UseSdkConfigContext("stafi")
 	for i, swapInfo := range swapInfoList {
 		stafihubAddress, err := types.AccAddressFromBech32(swapInfo.StafihubAddress)
 		if err != nil {
+			done()
 			return err
 		}
 		outAmountDeci, err := decimal.NewFromString(swapInfo.OutAmount)
 		if err != nil {
+			done()
 			return err
 		}
 		if outAmountDeci.Cmp(task.swapMaxLimit) > 0 {
+			done()
 			return fmt.Errorf("outAmount > swapLimit, out: %s", outAmountDeci.StringFixed(0))
 		}
 
@@ -91,9 +97,9 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 		willTransferAmount = tempAmount
 		transferMaxIndex = i
 		msg := xBankTypes.NewMsgSend(task.stafihubClient.GetFromAddress(), stafihubAddress, types.NewCoins(types.NewCoin(task.stafihubClient.GetDenom(), types.NewIntFromBigInt(outAmountDeci.BigInt()))))
-
 		msgs = append(msgs, msg)
 	}
+	done()
 
 	if len(msgs) == 0 {
 		return fmt.Errorf("no msgs insufficient balance")
@@ -148,6 +154,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 			break
 		}
 		swapInfo.State = utils.SwapStatePayOk
+		swapInfo.PayInfo = txHash
 		err := dao_station.UpOrInFeeStationSwapInfo(tx, swapInfo)
 		if err != nil {
 			tx.RollbackTransaction()

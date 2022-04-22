@@ -146,6 +146,7 @@ uatom: 6
 | message | N/A        | N/A     | string | Yes         | null        | status info |
 | data    | N/A        | N/A     | object | Yes         | null        | data        |
 |         | swapStatus | N/A     | number | Yes         | null        | swap status |
+|         | payTxHash  | N/A     | string | Yes         | null        | pay tx hash |
 
 
 

@@ -183,7 +183,8 @@ func (h *Handler) HandlePostSwapInfo(c *gin.Context) {
 }
 
 type RspGetSwapInfo struct {
-	SwapStatus uint8 `json:"swapStatus"`
+	SwapStatus uint8  `json:"swapStatus"`
+	PayTxHash  string `json:"payTxHash"`
 }
 
 // @Summary get swap info
@@ -213,6 +214,7 @@ func (h *Handler) HandleGetSwapInfo(c *gin.Context) {
 
 	rsp := RspGetSwapInfo{
 		SwapStatus: swapInfo.State,
+		PayTxHash:  swapInfo.PayInfo,
 	}
 	utils.Ok(c, "success", rsp)
 }
