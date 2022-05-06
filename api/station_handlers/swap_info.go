@@ -22,6 +22,7 @@ type ReqPostSwapInfo struct {
 	Symbol          string `json:"symbol"`
 	PoolAddress     string `json:"poolAddress"`
 	InAmount        string `json:"inAmount"`     //decimal
+	OutAmount       string `json:"outAmount"`    //decimal
 	MinOutAmount    string `json:"minOutAmount"` //decimal
 }
 
@@ -136,12 +137,25 @@ func (h *Handler) HandlePostSwapInfo(c *gin.Context) {
 	if outAmount.Cmp(swapMaxLimitDeci) > 0 {
 		outAmount = swapMaxLimitDeci
 	}
-	if outAmount.Cmp(swapMinLimitDeci) < 0 {
-		utils.Err(c, codeMinLimitErr, "out amount less than min limit")
-		return
-	}
 
 	//check min out amount
+	if len(req.OutAmount) != 0 {
+		reqOutAmountDeci, err := decimal.NewFromString(req.OutAmount)
+		if err != nil {
+			utils.Err(c, codeInAmountFormatErr, err.Error())
+			return
+		}
+		if reqOutAmountDeci.Cmp(swapMinLimitDeci) < 0 {
+			utils.Err(c, codeMinLimitErr, "out amount less than min limit")
+			return
+		}
+	} else {
+		if outAmount.Cmp(swapMinLimitDeci) < 0 {
+			utils.Err(c, codeMinLimitErr, "out amount less than min limit")
+			return
+		}
+	}
+
 	minOutAmountDeci, err := decimal.NewFromString(req.MinOutAmount)
 	if err != nil {
 		logrus.Errorf("decimal.NewFromString,minOutAmount: %s err %s", req.MinOutAmount, err)

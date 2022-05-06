@@ -176,6 +176,10 @@ var doc = `{
                     "description": "decimal",
                     "type": "string"
                 },
+                "outAmount": {
+                    "description": "decimal",
+                    "type": "string"
+                },
                 "poolAddress": {
                     "type": "string"
                 },
@@ -191,6 +195,9 @@ var doc = `{
         "station_handlers.RspGetSwapInfo": {
             "type": "object",
             "properties": {
+                "payTxHash": {
+                    "type": "string"
+                },
                 "swapStatus": {
                     "type": "integer"
                 }

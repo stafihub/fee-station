@@ -92,13 +92,14 @@ example:
 * data format: application/json
 * data detail:
 
-| field           | type   | notice                                                          |
-| :-------------- | :----- | :-------------------------------------------------------------- |
-| stafihubAddress | string | user stafi address,bech32 string                                |
-| symbol          | string | native token like `uatom`, get from pool info                   |
-| poolAddress     | string | pool address, get from api                                      |
-| inAmount        | string | in token amount, decimal string, decimals equal to native token |
-| minOutAmount    | string | min out amount, decimal string, decimals 6                      |
+| field           | type   | notice                                                           |
+| :-------------- | :----- | :--------------------------------------------------------------- |
+| stafihubAddress | string | user stafi address,bech32 string                                 |
+| symbol          | string | native token like `uatom`, get from pool info                    |
+| poolAddress     | string | pool address, get from api                                       |
+| inAmount        | string | in token amount, decimal string, decimals equal to native token  |
+| outAmount       | string | out token amount, decimal string, decimals equal to native token |
+| minOutAmount    | string | min out amount, decimal string, decimals 6                       |
 
 * native token decimals
 

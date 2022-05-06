@@ -161,6 +161,10 @@
                     "description": "decimal",
                     "type": "string"
                 },
+                "outAmount": {
+                    "description": "decimal",
+                    "type": "string"
+                },
                 "poolAddress": {
                     "type": "string"
                 },
@@ -176,6 +180,9 @@
         "station_handlers.RspGetSwapInfo": {
             "type": "object",
             "properties": {
+                "payTxHash": {
+                    "type": "string"
+                },
                 "swapStatus": {
                     "type": "integer"
                 }

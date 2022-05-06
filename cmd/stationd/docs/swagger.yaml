@@ -21,6 +21,9 @@ definitions:
       minOutAmount:
         description: decimal
         type: string
+      outAmount:
+        description: decimal
+        type: string
       poolAddress:
         type: string
       stafihubAddress:
@@ -31,6 +34,8 @@ definitions:
     type: object
   station_handlers.RspGetSwapInfo:
     properties:
+      payTxHash:
+        type: string
       swapStatus:
         type: integer
     type: object
