@@ -20,7 +20,8 @@ const (
 	maxAge       int64 = 604800
 )
 
-var defaultFormatter = &logrus.TextFormatter{DisableColors: true}
+var defaultFormatterForFile = &logrus.TextFormatter{DisableColors: true, FullTimestamp: true}
+var defaultFormatterForConsole = &logrus.TextFormatter{DisableColors: false, FullTimestamp: true}
 
 func InitLogFile(logPath string) error {
 	if err := clearLockFiles(logPath); err != nil {
@@ -30,6 +31,7 @@ func InitLogFile(logPath string) error {
 	hook := newBtmHook(logPath)
 	logrus.AddHook(hook)
 	//logrus.SetOutput(ioutil.Discard) //控制台不输出
+	logrus.SetFormatter(defaultFormatterForConsole)
 	fmt.Printf("all logs are output in the %s directory\n", logPath)
 	return nil
 }
@@ -62,7 +64,7 @@ func (hook *BtmHook) ioWrite(entry *logrus.Entry) error {
 		return err
 	}
 
-	msg, err := defaultFormatter.Format(entry)
+	msg, err := defaultFormatterForFile.Format(entry)
 	if err != nil {
 		return err
 	}

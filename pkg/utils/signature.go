@@ -61,16 +61,13 @@ func VerifiySigsSr25519(sigs, pubkey, message []byte) bool {
 	verifyTranscript := schnorrkel.NewSigningContext(substrateSigningCtx, message)
 	var usePubkey [32]byte
 	copy(usePubkey[:], pubkey)
-	p, err := schnorrkel.NewPublicKey(usePubkey)
-	if err != nil {
-		return false
-	}
+	p := schnorrkel.NewPublicKey(usePubkey)
 
 	sigin := [64]byte{}
 	copy(sigin[:], sigs)
 
 	sig := &schnorrkel.Signature{}
-	err = sig.Decode(sigin)
+	err := sig.Decode(sigin)
 	if err != nil {
 		return false
 	}
