@@ -87,7 +87,7 @@ func (task *Task) Start() error {
 		return err
 	}
 	for _, metaData := range metaDatas {
-		client, err := hubClient.NewClient(nil, "", "", metaData.Endpoint, metaData.AccountPrefix)
+		client, err := hubClient.NewClient(nil, "", "", metaData.AccountPrefix, []string{metaData.Endpoint})
 		if err != nil {
 			return err
 		}

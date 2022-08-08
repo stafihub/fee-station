@@ -7,3 +7,4 @@
 /conf_checker.toml
 /conf_syncer.toml
 /keys/
+.DS_Store

@@ -64,7 +64,7 @@ func (svr *Server) ApiServer() {
 
 func (svr *Server) InitOrUpdatePoolAddress() error {
 	for _, tokenInfo := range svr.cfg.TokenInfo {
-		client, err := hubClient.NewClient(nil, "", "", tokenInfo.Endpoint, tokenInfo.AccountPrefix)
+		client, err := hubClient.NewClient(nil, "", "", tokenInfo.AccountPrefix, []string{tokenInfo.Endpoint})
 		if err != nil {
 			return err
 		}

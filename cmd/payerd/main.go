@@ -63,7 +63,7 @@ func _main() error {
 	if err != nil {
 		return err
 	}
-	client, err := stafihubClient.NewClient(key, cfg.PayerAccount, cfg.GasPrice, cfg.StafiHubEndpoint)
+	client, err := stafihubClient.NewClient(key, cfg.PayerAccount, cfg.GasPrice, []string{cfg.StafiHubEndpoint})
 	if err != nil {
 		return fmt.Errorf("hubClient.NewClient err: %s", err)
 	}
