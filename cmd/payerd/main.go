@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/sirupsen/logrus"
+	clog "github.com/stafihub/rtoken-relay-core/common/log"
 	stafihubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 	"os"
 	"runtime"
@@ -63,7 +64,7 @@ func _main() error {
 	if err != nil {
 		return err
 	}
-	client, err := stafihubClient.NewClient(key, cfg.PayerAccount, cfg.GasPrice, []string{cfg.StafiHubEndpoint})
+	client, err := stafihubClient.NewClient(key, cfg.PayerAccount, cfg.GasPrice, []string{cfg.StafiHubEndpoint}, clog.NewLog("payer"))
 	if err != nil {
 		return fmt.Errorf("hubClient.NewClient err: %s", err)
 	}

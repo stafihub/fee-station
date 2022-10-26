@@ -14,6 +14,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/cosmos-relay-sdk/client"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	"gorm.io/gorm"
 )
 
@@ -64,7 +65,7 @@ func (svr *Server) ApiServer() {
 
 func (svr *Server) InitOrUpdatePoolAddress() error {
 	for _, tokenInfo := range svr.cfg.TokenInfo {
-		client, err := hubClient.NewClient(nil, "", "", tokenInfo.AccountPrefix, []string{tokenInfo.Endpoint})
+		client, err := hubClient.NewClient(nil, "", "", tokenInfo.AccountPrefix, []string{tokenInfo.Endpoint}, log.NewLog("server"))
 		if err != nil {
 			return err
 		}

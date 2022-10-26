@@ -11,6 +11,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	hubClient "github.com/stafihub/cosmos-relay-sdk/client"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 	stafihubClient "github.com/stafihub/stafi-hub-relay-sdk/client"
 )
 
@@ -87,7 +88,7 @@ func (task *Task) Start() error {
 		return err
 	}
 	for _, metaData := range metaDatas {
-		client, err := hubClient.NewClient(nil, "", "", metaData.AccountPrefix, []string{metaData.Endpoint})
+		client, err := hubClient.NewClient(nil, "", "", metaData.AccountPrefix, []string{metaData.Endpoint}, log.NewLog("payer"))
 		if err != nil {
 			return err
 		}
