@@ -1,6 +1,3 @@
-PROJECTNAME=$(shell basename "$(PWD)")
-.PHONY: help run build install license
-
 all:build
 
 get:
@@ -21,7 +18,11 @@ license:
 swagger:
 	@echo "  >  \033[32mBuilding swagger docs...\033[0m "
 	cd cmd/stationd && swag init --parseDependency
-	
+
+fmt:
+	go fmt ./...	
 
 clean:
 	rm -rf build/
+
+.PHONY: help run build install license

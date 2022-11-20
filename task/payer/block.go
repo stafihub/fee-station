@@ -64,6 +64,15 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 		if err != nil {
 			return err
 		}
+
+		// should reduce the tx number on old chain if upgrade by new genesis
+		if strings.EqualFold(client.GetDenom(), "uhuahua") {
+			numberOnOldChain := int64(20)
+			if totalCount > numberOnOldChain {
+				totalCount -= numberOnOldChain
+			}
+		}
+
 		txResPre, err := client.GetTxs(filter, int(1), pageLimit, "asc")
 		if err != nil {
 			return err
