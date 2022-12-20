@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	pageLimit = 10
+	pageLimit = 200
 )
 
 func (task *Task) SyncTransferTxHandler(client *hubClient.Client) {
@@ -58,40 +58,9 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 
 	filter := []string{fmt.Sprintf("transfer.recipient='%s'", poolAddress), "message.module='bank'"}
 
+	page := 1
 	for {
-
-		totalCount, err := dao_station.GetFeeStationTransInfoTotalCount(t.db, client.GetDenom())
-		if err != nil {
-			return err
-		}
-
-		logrus.Debugf("%s totalCount in db %d", client.GetDenom(), totalCount)
-
-		// should reduce the tx number on old chain if upgrade by new genesis
-		if strings.EqualFold(client.GetDenom(), "uhuahua") {
-			numberOnOldChain := int64(20)
-			totalCount -= numberOnOldChain
-			if totalCount < 0 {
-				totalCount = 0
-			}
-		}
-
-		logrus.Debugf("%s will use totalCount  %d", client.GetDenom(), totalCount)
-
-		txResPre, err := client.GetTxs(filter, int(1), pageLimit, "asc")
-		if err != nil {
-			return err
-		}
-		logrus.Debugf("%s txs on chain, totalCount: %d, totalPage: %d, limit: %d", client.GetDenom(), txResPre.TotalCount, txResPre.PageTotal, txResPre.Limit)
-
-		usePage := totalCount/int64(pageLimit) + 1
-
-		//sip if localdb have
-		if uint64(usePage) > txResPre.PageTotal {
-			return nil
-		}
-
-		txRes, err := client.GetTxs(filter, int(usePage), pageLimit, "asc")
+		txRes, err := client.GetTxs(filter, page, pageLimit, "asc")
 		if err != nil {
 			return err
 		}
@@ -114,12 +83,75 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 			}
 
 		}
-
 		//just break when get all
 		if txRes.PageTotal == txRes.PageNumber {
 			break
 		}
+		page++
 	}
+
+	// for {
+
+	// 	totalCount, err := dao_station.GetFeeStationTransInfoTotalCount(t.db, client.GetDenom())
+	// 	if err != nil {
+	// 		return err
+	// 	}
+
+	// 	logrus.Debugf("%s totalCount in db %d", client.GetDenom(), totalCount)
+
+	// 	// should reduce the tx number on old chain if upgrade by new genesis
+	// 	if strings.EqualFold(client.GetDenom(), "uhuahua") {
+	// 		numberOnOldChain := int64(20)
+	// 		totalCount -= numberOnOldChain
+	// 		if totalCount < 0 {
+	// 			totalCount = 0
+	// 		}
+	// 	}
+
+	// 	logrus.Debugf("%s will use totalCount  %d", client.GetDenom(), totalCount)
+
+	// 	txResPre, err := client.GetTxs(filter, int(1), pageLimit, "asc")
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	logrus.Debugf("%s txs on chain, totalCount: %d, totalPage: %d, limit: %d", client.GetDenom(), txResPre.TotalCount, txResPre.PageTotal, txResPre.Limit)
+
+	// 	usePage := totalCount/int64(pageLimit) + 1
+
+	// 	//sip if localdb have
+	// 	if uint64(usePage) > txResPre.PageTotal {
+	// 		return nil
+	// 	}
+
+	// 	txRes, err := client.GetTxs(filter, int(usePage), pageLimit, "asc")
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	logrus.Debugf("%s get txs: %d", client.GetDenom(), len(txRes.Txs))
+
+	// 	for _, tx := range txRes.Txs {
+	// 		_, err := dao_station.GetFeeStationTransInfoByTx(t.db, tx.TxHash)
+	// 		//skip if exist
+	// 		if err == nil {
+	// 			continue
+	// 		}
+
+	// 		for _, log := range tx.Logs {
+	// 			for _, event := range log.Events {
+	// 				err := t.processStringEvents(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
+	// 				if err != nil {
+	// 					return err
+	// 				}
+	// 			}
+	// 		}
+
+	// 	}
+
+	// 	//just break when get all
+	// 	if txRes.PageTotal == txRes.PageNumber {
+	// 		break
+	// 	}
+	// }
 
 	return nil
 }
