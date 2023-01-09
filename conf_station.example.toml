@@ -1,21 +1,22 @@
-listenAddr = ":8083" 
-logFilePath = "" 
-mode = "release" # debug or release
+listenAddr = ":8083"
+logFilePath = ""
+mode = "release"        # debug or release
 swapMaxLimit = "150000" #decimals 6
-swapMinLimit = "1000" #decimals 6
-swapRate = "16000" #decimals 6
+swapMinLimit = "1000"   #decimals 6
+swapRate = "16000"      #decimals 6
 
 [[tokenInfo]]
-accountPrefix = "iaa" # iris: iaa cosmos: cosmos
-coinGeckoSymbol = "iris-network" # iris: iris-network cosmos: cosmos
-coinMarketSymbol = "IRIS" # iris: IRIS cosmos: ATOM
-decimals = 6 
-endpoint = "https://test-iris-rpc1.stafihub.io:443" 
-poolAddress = "iaa1yjcl77yltt0swzrq2n6pqw836qrp9l2aaus4xl" 
+accountPrefix = "iaa"                                      # iris: iaa cosmos: cosmos
+coinGeckoSymbol = "iris-network"                           # iris: iris-network cosmos: cosmos
+coinMarketSymbol = "IRIS"                                  # iris: IRIS cosmos: ATOM
+decimals = 6
+endpoint = "https://test-iris-rpc1.stafihub.io:443"
+poolAddress = "iaa1yjcl77yltt0swzrq2n6pqw836qrp9l2aaus4xl"
+startBlock = 13592234
 
 [db]
 host = "127.0.0.1" # mysql host ip
-name = "station" # the database this server used
-port = "3306" 
-pwd = "123456" # mysql password
-user = "root" # mysql username
+name = "station"   # the database this server used
+port = "3306"
+pwd = "123456"     # mysql password
+user = "root"      # mysql username

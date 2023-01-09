@@ -78,6 +78,14 @@ func (svr *Server) InitOrUpdatePoolAddress() error {
 		if err != nil && err != gorm.ErrRecordNotFound {
 			return err
 		}
+		if tokenInfo.StartBlock > 1 {
+			tokenInfo.StartBlock -= 1
+		}
+
+		if tokenInfo.StartBlock > metaData.DealedBlock {
+			metaData.DealedBlock = tokenInfo.StartBlock
+		}
+
 		metaData.Symbol = res.Params.BondDenom
 		metaData.AccountPrefix = tokenInfo.AccountPrefix
 		metaData.CoinmarketSymbol = tokenInfo.CoinMarketSymbol
@@ -85,6 +93,7 @@ func (svr *Server) InitOrUpdatePoolAddress() error {
 		metaData.PoolAddress = tokenInfo.PoolAddress
 		metaData.Endpoint = tokenInfo.Endpoint
 		metaData.Decimals = tokenInfo.Decimals
+
 		err = dao_station.UpOrInMetaData(svr.db, metaData)
 		if err != nil {
 			return err

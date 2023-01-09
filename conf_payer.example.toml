@@ -1,16 +1,16 @@
-coinGeckoApi = "https://api.coingecko.com/api/v3/simple/price" 
-coinMarketApi = "https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest" 
-gasPrice = "0.001ufis" 
-keystorePath = "/Users/tpkeeper/.stafihub" 
-logFilePath = "" 
-mode = "debug" # debug or release
-payerAccount = "relay1" 
-stafiHubEndPoint = "http://127.0.0.1:26657" 
-taskTicker = 15 # seconds
+coinGeckoApi = "https://api.coingecko.com/api/v3/simple/price"
+coinMarketApi = "https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
+gasPrice = "0.001ufis"
+keystorePath = "/Users/tpkeeper/.stafihub"
+logFilePath = ""
+mode = "debug"                                                                      # debug or release
+payerAccount = "relay1"
+stafiHubEndPoint = "http://127.0.0.1:26657"
+taskTicker = 15                                                                     # seconds
 
 [db]
 host = "127.0.0.1" # mysql host ip
-name = "station" # the database this server used
-port = "3306" 
-pwd = "123456" # mysql password
-user = "root" # mysql username
+name = "station"   # the database this server used
+port = "3306"
+pwd = "123456"     # mysql password
+user = "root"      # mysql username

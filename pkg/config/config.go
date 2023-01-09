@@ -41,6 +41,7 @@ type TokenInfo struct {
 	CoinMarketSymbol string
 	CoinGeckoSymbol  string
 	Decimals         uint8
+	StartBlock       uint64
 }
 
 type Db struct {
