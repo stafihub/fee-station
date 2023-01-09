@@ -12,7 +12,7 @@ coinMarketSymbol = "IRIS"                                  # iris: IRIS cosmos: 
 decimals = 6
 endpoint = "https://test-iris-rpc1.stafihub.io:443"
 poolAddress = "iaa1yjcl77yltt0swzrq2n6pqw836qrp9l2aaus4xl"
-startBlock = 13592234
+startBlock = 3
 
 [db]
 host = "127.0.0.1" # mysql host ip

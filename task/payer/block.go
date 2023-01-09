@@ -96,15 +96,15 @@ func (t *Task) processStringEvents(client *hubClient.Client, event types.StringE
 
 	switch {
 	case event.Type == xBankTypes.EventTypeTransfer:
-		// not support multisend now
+		// skip if multisend
 		if len(event.Attributes) != 3 {
 			logrus.Debug("got multisend transfer event", "txHash", txHash, "event", event)
-			return fmt.Errorf("got multisend event")
+			return nil
 		}
-		// return if not to this pool
+		// skip if not to this pool
 		recipient := event.Attributes[0].Value
 		if recipient != metaData.PoolAddress {
-			return fmt.Errorf("recipient not match")
+			return nil
 		}
 
 		coin, err := types.ParseCoinNormalized(event.Attributes[2].Value)
