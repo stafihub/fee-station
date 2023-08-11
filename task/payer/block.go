@@ -52,7 +52,7 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 
 	latestBlock, err := client.GetCurrentBlockHeight()
 	if err != nil {
-		return err
+		return fmt.Errorf("client.GetCurrentBlockHeight err: %s denom: %s", err.Error(), client.GetDenom())
 	}
 	startBlock := int64(metaData.DealedBlock + 1)
 
@@ -60,7 +60,8 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 
 		txs, err := client.GetBlockTxsWithParseErrSkip(willDealBlock)
 		if err != nil {
-			return err
+			return fmt.Errorf("GetBlockTxsWithParseErrSkip err: %s, block %d, denom: %s",
+				err.Error(), willDealBlock, client.GetDenom())
 		}
 
 		for _, tx := range txs {
@@ -74,7 +75,8 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 				for _, event := range log.Events {
 					err := t.processStringEvents(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
 					if err != nil {
-						return err
+						return fmt.Errorf("processStringEvents err: %s, block %d, denom: %s",
+							err.Error(), willDealBlock, client.GetDenom())
 					}
 				}
 			}
