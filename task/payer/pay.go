@@ -115,7 +115,7 @@ func (task Task) CheckPayInfo(db *db.WrapDb) error {
 		txHash, err = task.stafihubClient.BroadcastBatchMsg(msgs)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "incorrect account sequence") {
-				logrus.Warn("BroadcastBatchMsg err will retry: %s", err)
+				logrus.Warnf("BroadcastBatchMsg err will retry: %s", err)
 				time.Sleep(BlockRetryInterval)
 				retry++
 				continue

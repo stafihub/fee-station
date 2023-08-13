@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	tmcfg "github.com/cometbft/cometbft/config"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -36,7 +37,7 @@ func main() {
 				return err
 			}
 
-			return server.InterceptConfigsPreRunHandler(cmd, "", nil)
+			return server.InterceptConfigsPreRunHandler(cmd, "", nil, tmcfg.DefaultConfig())
 		},
 	}
 
@@ -57,5 +58,5 @@ func main() {
 	rootCmd.PersistentFlags().String(flags.FlagKeyringBackend, "file", "Select keyring's backend (os|file|test)")
 	rootCmd.PersistentFlags().String("output", "text", "Output format (text|json)")
 
-	svrcmd.Execute(rootCmd, defaultNodeHome)
+	svrcmd.Execute(rootCmd, "", defaultNodeHome)
 }

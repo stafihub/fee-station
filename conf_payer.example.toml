@@ -5,7 +5,7 @@ keystorePath = "/Users/tpkeeper/.stafihub"
 logFilePath = ""
 mode = "debug"                                                                      # debug or release
 payerAccount = "relay1"
-stafiHubEndPoint = "http://127.0.0.1:26657"
+stafiHubEndPoint = "https://test-rpc1.stafihub.io:443"
 taskTicker = 15                                                                     # seconds
 
 [db]
