@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/spf13/cobra"
+	tmcfg "github.com/tendermint/tendermint/config"
 )
 
 var defaultNodeHome = "./keys/stafihub"
@@ -36,7 +37,7 @@ func main() {
 				return err
 			}
 
-			return server.InterceptConfigsPreRunHandler(cmd, "", nil)
+			return server.InterceptConfigsPreRunHandler(cmd, "", nil, tmcfg.DefaultConfig())
 		},
 	}
 
@@ -57,5 +58,5 @@ func main() {
 	rootCmd.PersistentFlags().String(flags.FlagKeyringBackend, "file", "Select keyring's backend (os|file|test)")
 	rootCmd.PersistentFlags().String("output", "text", "Output format (text|json)")
 
-	svrcmd.Execute(rootCmd, defaultNodeHome)
+	svrcmd.Execute(rootCmd, "", defaultNodeHome)
 }

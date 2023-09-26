@@ -55,25 +55,6 @@ func TestVerifySigsEth(t *testing.T) {
 	t.Log(ok)
 }
 
-func TestVerifySigs25519(t *testing.T) {
-	sigs, err := hexutil.Decode("0xf47b28366ad87a65a802d596533d33f869fff163bb7582fe5c86ad3e0151950121700ba862869ffa482b9d74955785fbe2c5075619926ec24f7eda9d53d40681")
-	if err != nil {
-		t.Fatal(err)
-	}
-	msg, err := hexutil.Decode("0xcca4cef73a88bcc6b1ef7087393f5ca226ce795bf20b5868d140690c7d419156")
-	if err != nil {
-		t.Fatal(err)
-	}
-	pubkey, err := hexutil.Decode("0xcca4cef73a88bcc6b1ef7087393f5ca226ce795bf20b5868d140690c7d419156")
-	if err != nil {
-		t.Fatal(err)
-	}
-	ok := utils.VerifiySigsSr25519(sigs, pubkey, msg)
-	msgHash := ethCrypto.Keccak256(msg)
-	t.Log(hexutil.Encode(msgHash))
-	t.Log(ok)
-}
-
 func TestGetPrice(t *testing.T) {
 	url := "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,polkadot,cosmos,stafi,kusama&vs_currencies=usd"
 	prices, err := utils.GetPriceFromCoinGecko(url)

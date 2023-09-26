@@ -60,7 +60,7 @@ func _main() error {
 	}()
 
 	fmt.Printf("Will open stafihub wallet from <%s>. \nPlease ", cfg.KeystorePath)
-	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin)
+	key, err := keyring.New(types.KeyringServiceName(), keyring.BackendFile, cfg.KeystorePath, os.Stdin, stafihubClient.MakeEncodingConfig().Marshaler)
 	if err != nil {
 		return err
 	}
