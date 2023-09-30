@@ -17,7 +17,7 @@ require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.7.0
-	github.com/stafihub/cosmos-relay-sdk v1.10.0-cometbft-0.1.1
+	github.com/stafihub/cosmos-relay-sdk v1.10.0-cometbft-0.1.3
 	github.com/stafihub/rtoken-relay-core/common v0.0.0-20221104093123-ca51d55b8f53
 	github.com/stafihub/stafi-hub-relay-sdk v1.10.0-cometbft-0.1.1
 	github.com/swaggo/gin-swagger v1.3.0
