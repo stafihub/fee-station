@@ -72,12 +72,23 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 			if err == nil {
 				continue
 			}
-
-			for _, event := range tx.Events {
-				err := t.processStringEvents(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
-				if err != nil {
-					return fmt.Errorf("processStringEvents err: %s, block %d, denom: %s",
-						err.Error(), willDealBlock, client.GetDenom())
+			if len(tx.Logs) > 0 {
+				for _, log := range tx.Logs {
+					for _, event := range log.Events {
+						err := t.processStringEvents(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
+						if err != nil {
+							return fmt.Errorf("processStringEvents err: %s, block %d, denom: %s",
+								err.Error(), willDealBlock, client.GetDenom())
+						}
+					}
+				}
+			} else {
+				for _, event := range tx.Events {
+					err := t.processStringEventsNew(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
+					if err != nil {
+						return fmt.Errorf("processStringEvents err: %s, block %d, denom: %s",
+							err.Error(), willDealBlock, client.GetDenom())
+					}
 				}
 			}
 
@@ -93,7 +104,130 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 	return nil
 }
 
-func (t *Task) processStringEvents(client *hubClient.Client, event types1.Event, blockNumber int64, txHash string, txValue []byte, metaData *dao_station.FeeStationMetaData) error {
+func (t *Task) processStringEvents(client *hubClient.Client, event types.StringEvent, blockNumber int64, txHash string, txValue []byte, metaData *dao_station.FeeStationMetaData) error {
+	logrus.Debug("processStringEvents", "event", event)
+
+	switch {
+	case event.Type == xBankTypes.EventTypeTransfer:
+		// skip if multisend
+		if len(event.Attributes) != 3 {
+			logrus.Debug("got multisend transfer event", "txHash", txHash, "event", event)
+			return nil
+		}
+		// skip if not to this pool
+		recipient := event.Attributes[0].Value
+		if recipient != metaData.PoolAddress {
+			return nil
+		}
+
+		coin, err := types.ParseCoinNormalized(event.Attributes[2].Value)
+		if err != nil {
+			return fmt.Errorf("amount format err, %s", err)
+		}
+
+		transInfo := &dao_station.FeeStationTransInfo{
+			Uuid:            "",
+			StafihubAddress: "",
+			Symbol:          metaData.Symbol,
+			Txhash:          txHash,
+			PoolAddress:     recipient,
+			InAmount:        coin.Amount.String(),
+		}
+		if coin.GetDenom() != metaData.Symbol {
+			logrus.Warnf("transfer denom not equal, expect %s got %s, transinfo: %+v", metaData.Symbol, coin.GetDenom(), transInfo)
+			dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+			return nil
+		}
+		// skip if already exists
+		_, err = dao_station.GetFeeStationTransInfoByTx(t.db, txHash)
+		if err == nil {
+			return nil
+		}
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+
+		// check memo
+		memoInTx, err := client.GetTxMemo(txValue)
+		if err != nil {
+			logrus.Warnf("memo format err: %s", err.Error())
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+		memos := strings.Split(memoInTx, ":")
+		if len(memos) != 2 {
+			logrus.Warnf("memo format err, memo: %s", memoInTx)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+		uuid := memos[0]
+		stafihubAddress := memos[1]
+
+		_, err = types.GetFromBech32(stafihubAddress, "stafi")
+		if err != nil {
+			logrus.Warnf("stafi address err, memo: %s", memoInTx)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+		if len(uuid) == 0 {
+			logrus.Warnf("uuid err, memo: %s", memoInTx)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		// set stafi address and uuid
+		transInfo.StafihubAddress = stafihubAddress
+		transInfo.Uuid = uuid
+
+		swapInfo, err := dao_station.GetFeeStationSwapInfoByUuid(t.db, uuid)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+		//uuid not exist
+		if err != nil && err == gorm.ErrRecordNotFound {
+			logrus.Warnf("uuid not exist in swap info, tranInfo: %+v", transInfo)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		// stake != notSynced
+		if swapInfo.State != utils.SwapStateNotSynced {
+			logrus.Warnf("swap state not match, swap state: %d, transInfo: %+v", swapInfo.State, transInfo)
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		// case below will update swapinfo's state
+		//amount not match
+		if !strings.EqualFold(swapInfo.InAmount, transInfo.InAmount) {
+			logrus.Warnf("amount not match, tranInfo: %+v, swapInfo: %+v", transInfo, swapInfo)
+			swapInfo.State = utils.SwapStateInAmountNotMatch
+			err := dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+			if err != nil {
+				return err
+			}
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+		//stafihub address not match
+		if !strings.EqualFold(swapInfo.StafihubAddress, transInfo.StafihubAddress) {
+			logrus.Warnf("stafi address not match, tranInfo: %+v, swapInfo: %+v", transInfo, swapInfo)
+			swapInfo.State = utils.SwapStateStafihubAddressNotMatch
+			err := dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+			if err != nil {
+				return err
+			}
+			return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+		}
+
+		//update state
+		swapInfo.State = utils.SwapStateAlreadySynced
+		logrus.Debug("find transfer event", "block number", blockNumber)
+		err = dao_station.UpOrInFeeStationSwapInfo(t.db, swapInfo)
+		if err != nil {
+			return err
+		}
+		return dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
+
+	default:
+		return nil
+	}
+}
+
+func (t *Task) processStringEventsNew(client *hubClient.Client, event types1.Event, blockNumber int64, txHash string, txValue []byte, metaData *dao_station.FeeStationMetaData) error {
 	logrus.Debug("processStringEvents", "event", event)
 
 	switch {
