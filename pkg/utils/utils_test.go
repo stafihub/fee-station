@@ -91,18 +91,20 @@ func TestGetPrice(t *testing.T) {
 
 func TestBlocks(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
-	client, err := hubClient.NewClient(nil, "", "", "uatom", []string{"https://cosmos-rpc1.stafi.io:443"}, log.NewLog("client", "atom"))
+	// client, err := hubClient.NewClient(nil, "", "", "uatom", []string{"https://cosmos-rpc1.stafi.io:443"}, log.NewLog("client", "atom"))
+	client, err := hubClient.NewClient(nil, "", "", "uhuahua", []string{"https://chihuahua-private-rpc1.stafihub.io:443"}, log.NewLog("client", "atom"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	txs, err := client.GetBlockTxsWithParseErrSkip(22718802)
+	txs, err := client.GetBlockTxsWithParseErrSkip(15087960)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for _, tx := range txs {
 		t.Log("txhash", tx.TxHash)
+		t.Log(tx)
 		for _, event := range tx.Events {
 			t.Log(event.Type)
 			switch {
@@ -120,7 +122,7 @@ func TestBlocks(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				t.Log(coins.AmountOf("uatom"))
+				t.Log(coins.AmountOf("uhuahua"))
 
 			default:
 

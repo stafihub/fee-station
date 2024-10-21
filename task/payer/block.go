@@ -124,7 +124,7 @@ func (t *Task) processStringEvents(client *hubClient.Client, event types1.Event,
 		}
 
 		if amount == math.ZeroInt() {
-			logrus.Warnf("transfer denom not equal, expect %s got %s, transinfo: %+v", metaData.Symbol, coin.GetDenom(), transInfo)
+			logrus.Warnf("transfer denom not equal, expect %s got %s, transinfo: %+v", metaData.Symbol, coins.String(), transInfo)
 			dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
 			return nil
 		}
