@@ -38,7 +38,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3 // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
 	cosmossdk.io/log v1.1.1-0.20230704160919-88f2c830b0ca // indirect
-	cosmossdk.io/math v1.0.1 // indirect
+	cosmossdk.io/math v1.0.1
 	cosmossdk.io/tools/rosetta v0.2.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/aws/aws-sdk-go v1.44.203 // indirect
