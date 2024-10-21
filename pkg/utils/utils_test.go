@@ -5,12 +5,18 @@ package utils_test
 
 import (
 	"fee-station/pkg/utils"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	ethCrypto "github.com/ethereum/go-ethereum/crypto"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/cosmos/cosmos-sdk/types"
+	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	ethCrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/sirupsen/logrus"
+	hubClient "github.com/stafihub/cosmos-relay-sdk/client"
+	"github.com/stafihub/rtoken-relay-core/common/log"
 )
 
 func TestGetSwapHash(t *testing.T) {
@@ -81,4 +87,47 @@ func TestGetPrice(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(prices)
+}
+
+func TestBlocks(t *testing.T) {
+	logrus.SetLevel(logrus.TraceLevel)
+	client, err := hubClient.NewClient(nil, "", "", "uatom", []string{"https://cosmos-rpc1.stafi.io:443"}, log.NewLog("client", "atom"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	txs, err := client.GetBlockTxsWithParseErrSkip(22718802)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tx := range txs {
+		t.Log("txhash", tx.TxHash)
+		for _, event := range tx.Events {
+			t.Log(event.Type)
+			switch {
+			case event.Type == xBankTypes.EventTypeTransfer:
+				t.Log("transfer")
+				// skip if multisend
+				if len(event.Attributes) != 4 {
+					t.Log("attributes", len(event.Attributes))
+					continue
+				}
+				// skip if not to this pool
+				recipient := event.Attributes[0].Value
+				t.Log("recipient", recipient)
+				coins, err := types.ParseCoinsNormalized(event.Attributes[2].Value)
+				if err != nil {
+					t.Fatal(err)
+				}
+				t.Log(coins.AmountOf("uatom"))
+
+			default:
+
+			}
+		}
+
+	}
+
+	// t.Log(txs)
 }

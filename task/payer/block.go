@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"cosmossdk.io/math"
+	types1 "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	xBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/sirupsen/logrus"
@@ -71,13 +73,11 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 				continue
 			}
 
-			for _, log := range tx.Logs {
-				for _, event := range log.Events {
-					err := t.processStringEvents(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
-					if err != nil {
-						return fmt.Errorf("processStringEvents err: %s, block %d, denom: %s",
-							err.Error(), willDealBlock, client.GetDenom())
-					}
+			for _, event := range tx.Events {
+				err := t.processStringEvents(client, event, tx.Height, tx.TxHash, tx.Tx.Value, metaData)
+				if err != nil {
+					return fmt.Errorf("processStringEvents err: %s, block %d, denom: %s",
+						err.Error(), willDealBlock, client.GetDenom())
 				}
 			}
 
@@ -93,13 +93,13 @@ func (t *Task) SyncTransferTx(client *hubClient.Client) error {
 	return nil
 }
 
-func (t *Task) processStringEvents(client *hubClient.Client, event types.StringEvent, blockNumber int64, txHash string, txValue []byte, metaData *dao_station.FeeStationMetaData) error {
+func (t *Task) processStringEvents(client *hubClient.Client, event types1.Event, blockNumber int64, txHash string, txValue []byte, metaData *dao_station.FeeStationMetaData) error {
 	logrus.Debug("processStringEvents", "event", event)
 
 	switch {
 	case event.Type == xBankTypes.EventTypeTransfer:
 		// skip if multisend
-		if len(event.Attributes) != 3 {
+		if len(event.Attributes) != 4 {
 			logrus.Debug("got multisend transfer event", "txHash", txHash, "event", event)
 			return nil
 		}
@@ -109,21 +109,21 @@ func (t *Task) processStringEvents(client *hubClient.Client, event types.StringE
 			return nil
 		}
 
-		coin, err := types.ParseCoinNormalized(event.Attributes[2].Value)
+		coins, err := types.ParseCoinsNormalized(event.Attributes[2].Value)
 		if err != nil {
 			return fmt.Errorf("amount format err, %s", err)
 		}
-
+		amount := coins.AmountOf(metaData.Symbol)
 		transInfo := &dao_station.FeeStationTransInfo{
 			Uuid:            "",
 			StafihubAddress: "",
 			Symbol:          metaData.Symbol,
 			Txhash:          txHash,
 			PoolAddress:     recipient,
-			InAmount:        coin.Amount.String(),
+			InAmount:        amount.String(),
 		}
 
-		if coin.GetDenom() != metaData.Symbol {
+		if amount == math.ZeroInt() {
 			logrus.Warnf("transfer denom not equal, expect %s got %s, transinfo: %+v", metaData.Symbol, coin.GetDenom(), transInfo)
 			dao_station.UpOrInFeeStationTransInfo(t.db, transInfo)
 			return nil
