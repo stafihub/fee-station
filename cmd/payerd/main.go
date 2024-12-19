@@ -30,8 +30,8 @@ func _main() error {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	log.InitLogFile(cfg.LogFilePath + "/syncer")
-	logrus.Infof("config info: \nkeystorePath: %s\npayerAccount: %s\nstafiHubEndpoint: %s\ngasPrice: %s\nlogFilePath: %s\ncoinMarketApi: %s\ncoinGeckoApi: %s\n",
-		cfg.KeystorePath, cfg.PayerAccount, cfg.StafiHubEndpoint, cfg.GasPrice, cfg.LogFilePath, cfg.CoinMarketApi, cfg.CoinGeckoApi)
+	logrus.Infof("config info: \nkeystorePath: %s\npayerAccount: %s\nstafiHubEndpoint: %s\ngasPrice: %s\nlogFilePath: %s\ncoinMarketApiKey: %s\ncoinGeckoApiKey: %s\n",
+		cfg.KeystorePath, cfg.PayerAccount, cfg.StafiHubEndpoint, cfg.GasPrice, cfg.LogFilePath, cfg.CoinMarketApiKey, cfg.CoinGeckoApiKey)
 
 	//init db
 	db, err := db.NewDB(&db.Config{

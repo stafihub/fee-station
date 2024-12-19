@@ -3,13 +3,28 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"net/url"
 	"time"
 )
 
-func GetPriceFromCoinGecko(url string) (map[string]float64, error) {
-	rsp, err := http.Get(url)
+func GetPriceFromCoinGecko(apiKey, params string) (map[string]float64, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://api.coingecko.com/api/v3/simple/price", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	q := url.Values{}
+	q.Add("ids", params)
+	q.Add("vs_currencies", "usd")
+
+	req.Header.Set("Accepts", "application/json")
+	req.Header.Add("x-cg-demo-api-key", apiKey)
+	req.URL.RawQuery = q.Encode()
+
+	rsp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +32,7 @@ func GetPriceFromCoinGecko(url string) (map[string]float64, error) {
 	if rsp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("status err %d", rsp.StatusCode)
 	}
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	bodyBytes, err := io.ReadAll(rsp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -33,20 +48,33 @@ func GetPriceFromCoinGecko(url string) (map[string]float64, error) {
 	for key, value := range coinGecko {
 		resPrice[key] = value.Usd
 	}
-
 	return resPrice, nil
 }
 
-func GetPriceFromCoinMarket(url string) (map[string]float64, error) {
-	rsp, err := http.Get(url)
+func GetPriceFromCoinMarket(apiKey, params string) (map[string]float64, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest", nil)
 	if err != nil {
 		return nil, err
 	}
+
+	q := url.Values{}
+	q.Add("symbol", params)
+
+	req.Header.Set("Accepts", "application/json")
+	req.Header.Add("X-CMC_PRO_API_KEY", apiKey)
+	req.URL.RawQuery = q.Encode()
+
+	rsp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
 	defer rsp.Body.Close()
 	if rsp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("status err %d", rsp.StatusCode)
 	}
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	bodyBytes, err := io.ReadAll(rsp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +88,7 @@ func GetPriceFromCoinMarket(url string) (map[string]float64, error) {
 	}
 	resPrice := make(map[string]float64)
 	for key, v := range coinMarket.Data {
-		resPrice[key] = v.Quote.USD.Price
+		resPrice[key] = v[0].Quote.USD.Price
 	}
 	return resPrice, nil
 }
@@ -81,7 +109,7 @@ type RspCoinMarket struct {
 		Notice       interface{} `json:"notice"`
 	} `json:"status"`
 
-	Data map[string]TokenInfo `json:"data"`
+	Data map[string][]TokenInfo `json:"data"`
 }
 
 type TokenInfo struct {
@@ -91,7 +119,6 @@ type TokenInfo struct {
 	Slug                      string      `json:"slug"`
 	NumMarketPairs            int         `json:"num_market_pairs"`
 	DateAdded                 time.Time   `json:"date_added"`
-	Tags                      []string    `json:"tags"`
 	MaxSupply                 interface{} `json:"max_supply"`
 	CirculatingSupply         float64     `json:"circulating_supply"`
 	TotalSupply               float64     `json:"total_supply"`

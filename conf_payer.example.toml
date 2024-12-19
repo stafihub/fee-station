@@ -1,12 +1,12 @@
-coinGeckoApi = "https://api.coingecko.com/api/v3/simple/price"
-coinMarketApi = "https://web-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
+coinGeckoApiKey = ""
+coinMarketApiKey = ""
 gasPrice = "0.001ufis"
 keystorePath = "/Users/tpkeeper/.stafihub"
 logFilePath = ""
-mode = "debug"                                                                      # debug or release
+mode = "debug"                                         # debug or release
 payerAccount = "relay1"
 stafiHubEndPoint = "https://test-rpc1.stafihub.io:443"
-taskTicker = 15                                                                     # seconds
+taskTicker = 15                                        # seconds
 
 [db]
 host = "127.0.0.1" # mysql host ip

@@ -13,7 +13,9 @@ import (
 )
 
 func (task *Task) PriceUpdateHandler() {
-	ticker := time.NewTicker(time.Duration(task.taskTicker) * time.Second)
+	task.UpdatePrice(task.db)
+
+	ticker := time.NewTicker(600 * time.Second)
 	defer ticker.Stop()
 	retry := 0
 	for {
@@ -47,11 +49,11 @@ func (t *Task) UpdatePrice(db *db.WrapDb) error {
 	if err != nil {
 		return err
 	}
-	coinMarketUrl := fmt.Sprintf("%s?symbol=%s", t.coinMarketApi, utils.CoinmarketSymbolFis)
-	coinGeckoUrl := fmt.Sprintf("%s?vs_currencies=usd&ids=%s", t.coinGeckoApi, utils.CoinGeckoSymbolFis)
+	coinMarketParams := utils.CoinmarketSymbolFis
+	coinGeckoParams := utils.CoinGeckoSymbolFis
 	for _, metaData := range metaDatas {
-		coinMarketUrl += "," + metaData.CoinmarketSymbol
-		coinGeckoUrl += "," + metaData.CoinGeckoSymbol
+		coinMarketParams += "," + metaData.CoinmarketSymbol
+		coinGeckoParams += "," + metaData.CoinGeckoSymbol
 	}
 
 	retry := 0
@@ -62,10 +64,10 @@ func (t *Task) UpdatePrice(db *db.WrapDb) error {
 			return fmt.Errorf("cosmosRpc.NewClient reach retry limit")
 		}
 
-		resPriceMap, err = utils.GetPriceFromCoinMarket(coinMarketUrl)
+		resPriceMap, err = utils.GetPriceFromCoinMarket(t.coinMarketApiKey, coinMarketParams)
 		if err != nil {
 			logrus.Warnf("GetPriceFromCoinMarket err: %s, will try coinGecko", err)
-			resPriceMap, err = utils.GetPriceFromCoinGecko(coinGeckoUrl)
+			resPriceMap, err = utils.GetPriceFromCoinGecko(t.coinGeckoApiKey, coinGeckoParams)
 			if err != nil {
 				logrus.Warnf("GetPriceFromCoinGecko err: %s, will retry", err)
 				time.Sleep(BlockRetryInterval)

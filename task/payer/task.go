@@ -23,27 +23,27 @@ const (
 )
 
 type Task struct {
-	taskTicker     int64
-	coinMarketApi  string
-	coinGeckoApi   string
-	swapMinLimit   decimal.Decimal
-	swapMaxLimit   decimal.Decimal
-	swapRate       decimal.Decimal
-	stafihubClient *stafihubClient.Client
-	payerAccount   string
-	stop           chan struct{}
-	db             *db.WrapDb
+	taskTicker       int64
+	coinMarketApiKey string
+	coinGeckoApiKey  string
+	swapMinLimit     decimal.Decimal
+	swapMaxLimit     decimal.Decimal
+	swapRate         decimal.Decimal
+	stafihubClient   *stafihubClient.Client
+	payerAccount     string
+	stop             chan struct{}
+	db               *db.WrapDb
 }
 
 func NewTask(cfg *config.Config, dao *db.WrapDb, stafihubClient *stafihubClient.Client) *Task {
 	s := &Task{
-		taskTicker:     cfg.TaskTicker,
-		coinMarketApi:  cfg.CoinMarketApi,
-		coinGeckoApi:   cfg.CoinGeckoApi,
-		payerAccount:   cfg.PayerAccount,
-		stafihubClient: stafihubClient,
-		stop:           make(chan struct{}),
-		db:             dao,
+		taskTicker:       cfg.TaskTicker,
+		coinMarketApiKey: cfg.CoinMarketApiKey,
+		coinGeckoApiKey:  cfg.CoinGeckoApiKey,
+		payerAccount:     cfg.PayerAccount,
+		stafihubClient:   stafihubClient,
+		stop:             make(chan struct{}),
+		db:               dao,
 	}
 	return s
 }

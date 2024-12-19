@@ -81,23 +81,19 @@ func TestVerifySigs25519(t *testing.T) {
 }
 
 func TestGetPrice(t *testing.T) {
-	url := "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,polkadot,cosmos,stafi,kusama&vs_currencies=usd"
-	prices, err := utils.GetPriceFromCoinGecko(url)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(prices)
 }
 
 func TestBlocks(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
 	// client, err := hubClient.NewClient(nil, "", "", "uatom", []string{"https://cosmos-rpc1.stafi.io:443"}, log.NewLog("client", "atom"))
-	client, err := hubClient.NewClient(nil, "", "", "uhuahua", []string{"https://chihuahua-private-rpc1.stafihub.io:443"}, log.NewLog("client", "atom"))
+	// client, err := hubClient.NewClient(nil, "", "", "uhuahua", []string{"https://chihuahua-private-rpc1.stafihub.io:443"}, log.NewLog("client", "atom"))
+	client, err := hubClient.NewClient(nil, "", "", "swth", []string{"https://tm-api.carbon.network:443"}, log.NewLog("client", "atom"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	txs, err := client.GetBlockTxsWithParseErrSkip(15087960)
+	// txs, err := client.GetBlockTxsWithParseErrSkip(56612956)
+	txs, err := client.GetBlockTxsWithParseErrSkip(64129454)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +118,7 @@ func TestBlocks(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				t.Log(coins.AmountOf("uhuahua"))
+				t.Log(coins.AmountOf("swth"))
 
 			default:
 

@@ -19,8 +19,8 @@ type Config struct {
 	PayerAccount     string
 	StafiHubEndpoint string
 	GasPrice         string
-	CoinMarketApi    string
-	CoinGeckoApi     string
+	CoinMarketApiKey string
+	CoinGeckoApiKey  string
 
 	// station
 	ListenAddr   string
